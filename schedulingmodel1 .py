@@ -8,9 +8,16 @@
 #such as resting more or maximizing points and earnings.
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize, LpBinary
 
+# Sample data
+
+tournament_data = [
+    {"name": f"Tournament{i}", "points": points[i], "earnings": earnings[i], "location": f"City{i}"}
+    for i in range(1, NUM_WEEKS + 1)
+]
+
 # Constants
 NUM_WEEKS = 42
-MAX_TOURNAMENTS_PER_WEEK = 3
+MAX_TOURNAMENTS_PER_WEEK = 5
 
 # Create a LP maximization problem
 model = LpProblem(name="Player_Schedule_Optimization", sense=LpMaximize)
@@ -20,7 +27,7 @@ model = LpProblem(name="Player_Schedule_Optimization", sense=LpMaximize)
 x = LpVariable.dicts("Attend", [(t, w) for t in range(1, NUM_WEEKS + 1) for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1)], cat=LpBinary)
 
 # Objective function: Maximize total points and earnings
-model += lpSum(x[t, w] * (points[t] + earnings[t]) for t in range(1, NUM_WEEKS + 1) for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1)), "Total_Points_and_Earnings"
+model += lpSum(x[t, w] * (tournament_data[t-1]["points"] + tournament_data[t-1]["earnings"]) for t in range(1, NUM_WEEKS + 1) for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1)), "Total_Points_and_Earnings"
 
 # Constraints
 # Constraint: Player attends at most one tournament per week
@@ -42,5 +49,5 @@ print(f"Optimal Points and Earnings: {model.objective.value()}")
 for t in range(1, NUM_WEEKS + 1):
     for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1):
         if x[t, w].value() == 1:
-            print(f"Week {w}: Tournament {t}")
+            print(f"Week {w}: {tournament_data[t-1]['name']}")
 
