@@ -6,6 +6,14 @@
 #Modify the points and earnings dictionaries to include the actual data for each tournament. 
 #Adjust other constraints according to the player's preferences, 
 #such as resting more or maximizing points and earnings.
+
+#converting the data
+import pandas as pd
+
+# Replace 'your_file.xlsx' with the actual path to your Excel file
+df = pd.read_excel('your_file.xlsx')
+
+
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize, LpBinary
 
 # Sample data
