@@ -11,12 +11,12 @@
 playerLocationLat = float(input("input your training location latitude: "))
 playerLocationLong = float(input("input your training location longitude: "))
 playerRanking = int(input("enter your current ranking: "))
+#opportunity to add more dials later
 
 #converting the data of the csv files
 import pandas as pd
 
-# Replace 'your_file_path.csv' with the actual path to your CSV file
-file_path = 'your_file_path.csv'
+file_path = 'pointsdata.csv'
 
 # Specify the column names
 columns = [
@@ -26,10 +26,24 @@ columns = [
 ]
 
 # Read the CSV file into a pandas DataFrame
-df = pd.read_csv(file_path, names=columns)
+dfpoints = pd.read_csv(file_path, names=columns)
 
-# Display the DataFrame
-print(df)
+file_path = 'prizemoneydata.csv'
+
+# Specify the column names
+columns = [
+    'Week', 'Type', 'Tournament', 'Location', 'Surface',
+    'Winner', 'Finalist', 'SF', 'QF', 'R16', 'R32', 'R64', 'R128',
+    'Coord (lat)', 'Coord (long)'
+]
+
+# Read the CSV file into a pandas DataFrame
+dfprize = pd.read_csv(file_path, names=columns)
+
+
+
+
+
 
 #calculations before optimization code
 #make a dictionary to store everything?
@@ -53,10 +67,27 @@ def distanceCalculator(lat1, lon1, lat2, lon2):
 
     return distance
 
+distanceArray = []
+lat_array = dfprize['Coord (lat)'].values
+long_array = dfprize['Coord (long)'].values
 for i in range (1, len(df)):
-    distance = distanceCalculator(playerLocationLat, playerLocationLong, df.at['iterator?', 'Coord (lat)'], df.at['iterator?', 'Coord (long)'])
+    distanceArray[i] = distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i])
 
 #need to calculate expected return: TODO PLZ KAMILA
+
+
+#make the final dataframe we will use for optimization
+week_array = dfprize['Week'].values
+name_array = dfprize['Tournament'].values
+location_array = dfprize['Location'].values
+data = {'Week': week_array,
+        'Tournament Name': name_array,
+        'Location': location_array,
+        'Prize Money': ['Alice', 'Bob', 'Charlie'], #placeholder
+        'Points': [25, 30, 35], #placeholder
+        'Distance': distanceArray}
+dfOptimization = pd.DataFrame(data)
+
 
 #optimization code
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize, LpBinary
