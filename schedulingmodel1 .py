@@ -7,13 +7,58 @@
 #Adjust other constraints according to the player's preferences, 
 #such as resting more or maximizing points and earnings.
 
-#converting the data
+#gathering information from player
+playerLocationLat = float(input("input your training location latitude: "))
+playerLocationLong = float(input("input your training location longitude: "))
+playerRanking = int(input("enter your current ranking: "))
+
+#converting the data of the csv files
 import pandas as pd
 
-# Replace 'your_file.xlsx' with the actual path to your Excel file
-df = pd.read_excel('your_file.xlsx')
+# Replace 'your_file_path.csv' with the actual path to your CSV file
+file_path = 'your_file_path.csv'
 
+# Specify the column names
+columns = [
+    'Week', 'Type', 'Tournament', 'Location', 'Surface',
+    'Winner', 'Finalist', 'SF', 'QF', 'R16', 'R32', 'R64', 'R128',
+    'Coord (lat)', 'Coord (long)'
+]
 
+# Read the CSV file into a pandas DataFrame
+df = pd.read_csv(file_path, names=columns)
+
+# Display the DataFrame
+print(df)
+
+#calculations before optimization code
+#make a dictionary to store everything?
+#need to calculate distance between points
+import math
+
+def distanceCalculator(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth's radius in kilometers
+
+    # Convert latitude and longitude from degrees to radians
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+
+    # Compute differences in latitude and longitude
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    # Haversine formula
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    distance = R * c
+
+    return distance
+
+for i in range (1, len(df)):
+    distance = distanceCalculator(playerLocationLat, playerLocationLong, df.at['iterator?', 'Coord (lat)'], df.at['iterator?', 'Coord (long)'])
+
+#need to calculate expected return: TODO PLZ KAMILA
+
+#optimization code
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize, LpBinary
 
 # Sample data
