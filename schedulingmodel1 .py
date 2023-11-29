@@ -1,11 +1,4 @@
 #Jay Xiao and Kamila Wong
-#chatGPT notes: In this example, I've introduced a binary decision variable x[t, w]
-# indicating whether the player attends tournament t in week w. 
-#You can customize the objective function, constraints, and decision variables based on the 
-#specific preferences and constraints for your problem.
-#Modify the points and earnings dictionaries to include the actual data for each tournament. 
-#Adjust other constraints according to the player's preferences, 
-#such as resting more or maximizing points and earnings.
 
 #gathering information from player
 playerLocationLat = float(input("input your training location latitude: "))
