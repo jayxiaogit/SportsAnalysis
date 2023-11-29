@@ -74,64 +74,62 @@ for i in range (1, len(df)):
     distanceArray[i] = distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i])
 
 #need to calculate expected return: TODO PLZ KAMILA
-
+points_array = []
+earnings_array = []
 
 #make the final dataframe we will use for optimization
 week_array = dfprize['Week'].values
 name_array = dfprize['Tournament'].values
 location_array = dfprize['Location'].values
-data = {'Week': week_array,
-        'Tournament Name': name_array,
-        'Location': location_array,
-        'Prize Money': ['Alice', 'Bob', 'Charlie'], #placeholder
-        'Points': [25, 30, 35], #placeholder
-        'Distance': distanceArray}
-dfOptimization = pd.DataFrame(data)
+for w, p, e, d, t in zip(week_array, points_array, earnings_array, distanceArray, name_array):
+    if w not in data_by_week:
+        data_by_week[w] = {'points': [], 'earnings': [], 'distance': [], 'tournament': []}
+    
+    data_by_week[w]['points'].append(p)
+    data_by_week[w]['earnings'].append(e)
+    data_by_week[w]['distance'].append(d)
+    data_by_week[w]['tournament'].append(t)
 
 
 #optimization code
-from pulp import LpProblem, LpVariable, lpSum, LpMaximize, LpBinary
+# PuLP model
+model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
-# Sample data
+weeks = data_by_week.keys()
+tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
 
-tournament_data = [
-    {"name": f"Tournament{i}", "points": points[i], "earnings": earnings[i], "location": f"City{i}"}
-    for i in range(1, NUM_WEEKS + 1)
-]
+x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
 
-# Constants
-NUM_WEEKS = 42
-MAX_TOURNAMENTS_PER_WEEK = 5
-
-# Create a LP maximization problem
-model = LpProblem(name="Player_Schedule_Optimization", sense=LpMaximize)
-
-# Decision variables
-# x[t, w] is a binary variable indicating whether the player attends tournament t in week w
-x = LpVariable.dicts("Attend", [(t, w) for t in range(1, NUM_WEEKS + 1) for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1)], cat=LpBinary)
-
-# Objective function: Maximize total points and earnings
-model += lpSum(x[t, w] * (tournament_data[t-1]["points"] + tournament_data[t-1]["earnings"]) for t in range(1, NUM_WEEKS + 1) for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1)), "Total_Points_and_Earnings"
+# Objective function
+model += lpSum(data_by_week[week]['earnings'][i] * x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] +
+               data_by_week[week]['points'][i] * x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for week in weeks for i in range(len(data_by_week[week]['points'])))
 
 # Constraints
-# Constraint: Player attends at most one tournament per week
-for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1):
-    model += lpSum(x[t, w] for t in range(1, NUM_WEEKS + 1)) <= 1, f"AtMostOneTournamentPerWeek_{w}"
+for week in weeks:
+    model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
 
-# Additional constraints based on player preferences (you can customize these)
-# Constraint: Player rests more (e.g., at most one tournament per week)
-model += lpSum(x[t, w] for t in range(1, NUM_WEEKS + 1) for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1)) <= NUM_WEEKS // 2, "RestMore"
-
-# Solve the problem
+# Solve the optimization problem
 model.solve()
 
-# Display results
-print(f"Status: {model.status}, {LpProblem.status[model.status]}")
-print(f"Optimal Points and Earnings: {model.objective.value()}")
+# Print the results
+print("Selected Tournaments:")
+selected_tournaments = []
 
-# Print the decision variables
-for t in range(1, NUM_WEEKS + 1):
-    for w in range(1, MAX_TOURNAMENTS_PER_WEEK + 1):
-        if x[t, w].value() == 1:
-            print(f"Week {w}: {tournament_data[t-1]['name']}")
+for var in model.variables():
+    if var.varValue == 1:
+        # Split the variable name and extract components
+        components = var.name.split('_')
+        
+        # Extract week, tournament name, and index from the variable name
+        week_index = components[-2]
+        tournament_name = "_".join(components[:-2])
+        
+        selected_tournaments.append((int(week_index), f"Week {week_index}: {tournament_name}"))
+
+# Sort the selected tournaments by week
+selected_tournaments.sort(key=lambda x: x[0])
+
+# Print the sorted results
+for tournament_info in selected_tournaments:
+    print(tournament_info[1])
 
