@@ -7,6 +7,16 @@ earnings = [120150, 120150, 34228, 32888, 2395039, 24332, 49323, 23904, 29030, 9
 distance = [1000, 200, 300, 403, 293, 230, 93, 30, 201, 1000, 293, 192]
 tournament = ['Adelaide International', 'ASB Classic', 'Hobart International', 'Thailand Open', 'Australian Open', 'Dubai Tennis Championships', 'BNP Paribas Open', 'Qatar Open', 'ATX Open', 'Merida Open Akron', 'Porsche Tennis Grand Prix', 'Mutua Madrid Open']
 week = [1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5]
+data_by_week = {}
+
+for w, p, e, d, t in zip(week, points, earnings, distance, tournament):
+    if w not in data_by_week:
+        data_by_week[w] = {'points': [], 'earnings': [], 'distance': [], 'tournament': []}
+    
+    data_by_week[w]['points'].append(p)
+    data_by_week[w]['earnings'].append(e)
+    data_by_week[w]['distance'].append(d)
+    data_by_week[w]['tournament'].append(t)
 
 # Constants
 NUM_WEEKS = 5
