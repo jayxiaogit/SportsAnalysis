@@ -15,6 +15,7 @@ playerRanking = int(input("enter your current ranking: "))
 
 #converting the data of the csv files
 import pandas as pd
+from pulp import LpProblem, LpVariable, lpSum, LpMaximize
 
 file_path = 'pointsdata.csv'
 
@@ -26,7 +27,7 @@ columns = [
 ]
 
 # Read the CSV file into a pandas DataFrame
-dfpoints = pd.read_csv(file_path, names=columns)
+dfpoints = pd.read_csv(file_path, names=columns, skiprows=1)
 
 file_path = 'prizemoneydata.csv'
 
@@ -38,7 +39,7 @@ columns = [
 ]
 
 # Read the CSV file into a pandas DataFrame
-dfprize = pd.read_csv(file_path, names=columns)
+dfprize = pd.read_csv(file_path, names=columns, skiprows=1)
 
 
 
@@ -74,10 +75,14 @@ for i in range (1, len(df)):
     distanceArray[i] = distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i])
 
 #need to calculate expected return: TODO PLZ KAMILA
+#make some function to calculate the expected round a player will get to per tournament
 points_array = []
+#add points to this array in order of the csv
 earnings_array = []
+#add earnings to this array in order of the csv
 
 #make the final dataframe we will use for optimization
+data_by_week = {}
 week_array = dfprize['Week'].values
 name_array = dfprize['Tournament'].values
 location_array = dfprize['Location'].values
