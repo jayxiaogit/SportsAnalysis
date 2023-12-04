@@ -4,7 +4,24 @@
 playerLocationLat = float(input("input your training location latitude: "))
 playerLocationLong = float(input("input your training location longitude: "))
 playerRanking = int(input("enter your current ranking: "))
+
 #opportunity to add more dials later
+#add dials!! then adjustment formual
+dial = input("Do you want to focus on points, earnings, or distance travelled? (enter p, e, or d)")
+restInput = int(input("How many weeks in a row can you play tournaments?: "))
+if dial == 'p':
+    #adjust
+    randomvar = 0
+elif dial == 'e':
+    #adjust
+    randomvar = 0
+elif dial == 'd':
+    #adjust
+    randomvar = 0
+else:
+    print("error, not a valid input")
+
+rest_tournament = "Rest"
 
 #converting the data of the csv files
 import pandas as pd
@@ -24,19 +41,15 @@ dfpoints = pd.read_csv(file_path, names=columns, skiprows=1)
 
 file_path = 'prizemoneydata.csv'
 
-# Specify the column names
-columns = [
-    'Week', 'Type', 'Tournament', 'Location', 'Surface',
-    'Winner', 'Finalist', 'SF', 'QF', 'R16', 'R32', 'R64', 'R128',
-    'Coord (lat)', 'Coord (long)'
-]
-
 # Read the CSV file into a pandas DataFrame
 dfprize = pd.read_csv(file_path, names=columns, skiprows=1)
 
-
-
-
+# cleaning up the dataframes
+dfpoints.fillna(0, inplace=True)  # Replace NaN values with 0
+dfprize.fillna(0, inplace=True)  # Replace NaN values with 0
+dfpoints['Week'] = dfpoints['Week'].astype(int)
+dfpoints['Coord (lat)'] = dfpoints['Coord (lat)'].astype(float)
+dfpoints['Coord (long)'] = dfpoints['Coord (long)'].astype(float)
 
 
 #calculations before optimization code
@@ -61,25 +74,45 @@ def distanceCalculator(lat1, lon1, lat2, lon2):
 
     return distance
 
-distanceArray = []
+distance = []
 lat_array = dfprize['Coord (lat)'].values
 long_array = dfprize['Coord (long)'].values
-for i in range (1, len(df)):
-    distanceArray[i] = distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i])
+for i in range(len(dfprize)):
+    distance.append(distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i]))
 
 #need to calculate expected return: TODO PLZ KAMILA
 #make some function to calculate the expected round a player will get to per tournament
-points_array = []
-#add points to this array in order of the csv
-earnings_array = []
-#add earnings to this array in order of the csv
+# RANKING WILL BE INPUTTED
+# REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
+def calculate_expected_earnings(ranking):
+    expected_earnings = 100000 - 10 * ranking
+    return expected_earnings
+
+def calculate_expected_points(ranking):
+    expected_points = 500 - ranking
+    return expected_points
+
+# Add expected points and earnings to arrays
+points = []
+earnings = []
+for i in range(len(distance)):
+    points.append(calculate_expected_points(playerRanking))
+    earnings.append(calculate_expected_earnings(playerRanking))
+
 
 #make the final dataframe we will use for optimization
 data_by_week = {}
-week_array = dfprize['Week'].values
-name_array = dfprize['Tournament'].values
-location_array = dfprize['Location'].values
-for w, p, e, d, t in zip(week_array, points_array, earnings_array, distanceArray, name_array):
+week = dfprize['Week'].values
+tournament = dfprize['Tournament'].values
+location = dfprize['Location'].values
+
+#testing to ensure proper data processing
+print(week)
+print(points)
+print(earnings)
+print(distance)
+print(tournament)
+for w, p, e, d, t in zip(week, points, earnings, distance, tournament):
     if w not in data_by_week:
         data_by_week[w] = {'points': [], 'earnings': [], 'distance': [], 'tournament': []}
     
@@ -88,8 +121,12 @@ for w, p, e, d, t in zip(week_array, points_array, earnings_array, distanceArray
     data_by_week[w]['distance'].append(d)
     data_by_week[w]['tournament'].append(t)
 
+# Add "Rest" week and tournament for missing weeks
+all_weeks = set(week)
+for w in all_weeks:
+    if w not in data_by_week:
+        data_by_week[w] = {'points': [0], 'earnings': [0], 'distance': [0], 'tournament': [rest_tournament]}
 
-#optimization code
 # PuLP model
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
@@ -97,14 +134,24 @@ weeks = data_by_week.keys()
 tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
 
 x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
+y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
 
 # Objective function
-model += lpSum(data_by_week[week]['earnings'][i] * x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] +
-               data_by_week[week]['points'][i] * x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for week in weeks for i in range(len(data_by_week[week]['points'])))
+model += lpSum(data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
+               data_by_week[wk]['points'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] for wk in weeks for i in range(len(data_by_week[wk]['points'])))
 
 # Constraints
-for week in weeks:
+weeks = list(weeks)
+for week_index, week in enumerate(weeks):
     model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
+
+# Ensure the player doesn't play for restInput consecutive weeks
+for i in range(len(weeks) - restInput + 1):
+    consecutive_weeks = weeks[i:i + restInput]
+    model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
+    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
+
+
 
 # Solve the optimization problem
 model.solve()
@@ -114,7 +161,7 @@ print("Selected Tournaments:")
 selected_tournaments = []
 
 for var in model.variables():
-    if var.varValue == 1:
+    if var.varValue == 1 and "Rest" not in var.name:
         # Split the variable name and extract components
         components = var.name.split('_')
         
