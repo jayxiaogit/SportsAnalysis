@@ -1,25 +1,16 @@
 #Jay Xiao and Kamila Wong
-
+#this is roughdraft number 1 of our code. This code has no dials in use
 #gathering information from player
 playerLocationLat = float(input("input your training location latitude: "))
 playerLocationLong = float(input("input your training location longitude: "))
 playerRanking = int(input("enter your current ranking: "))
 
 #opportunity to add more dials later
-#add dials!! then adjustment formual
-dial = input("Do you want to focus on points, earnings, or distance travelled? (enter p, e, or d)")
+#add dials!! then adjustment formula
+dialpoints = int(input("Give a rating of how important points are to you (1-10): "))
+dialearnings = int(input("Give a rating of how important earnings are to you (1-10): "))
+dialdistance = int(input("Give a rating of how important distance is to you (1-10): "))
 restInput = int(input("How many weeks in a row can you play tournaments?: "))
-if dial == 'p':
-    #adjust
-    randomvar = 0
-elif dial == 'e':
-    #adjust
-    randomvar = 0
-elif dial == 'd':
-    #adjust
-    randomvar = 0
-else:
-    print("error, not a valid input")
 
 rest_tournament = "Rest"
 
@@ -172,6 +163,17 @@ for var in model.variables():
         selected_tournaments.append((int(week_index), f"Week {week_index}: {tournament_name}"))
 
 # Sort the selected tournaments by week
+selected_tournaments.sort(key=lambda x: x[0])
+
+# Find missing weeks and fill in with "Rest"
+max_week = selected_tournaments[-1][0] if selected_tournaments else 0
+
+for i in range(1, max_week + 1):
+    week_exists = any(week[0] == i for week in selected_tournaments)
+    if not week_exists:
+        selected_tournaments.append((i, f"Week {i}: Rest"))
+
+# Sort the selected tournaments by week again (after adding "Rest" entries)
 selected_tournaments.sort(key=lambda x: x[0])
 
 # Print the sorted results
