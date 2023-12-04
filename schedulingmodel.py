@@ -183,5 +183,10 @@ selected_tournaments.sort(key=lambda x: x[0])
 
 # Print the sorted results
 for tournament_info in selected_tournaments:
-    print(tournament_info[1])
-
+    tournamentinfo = tournament_info[1]
+    components = tournamentinfo.split(":")
+    tournamentname = components[1]
+    namesplit = tournamentname.split("_")
+    namesplit = namesplit[1::]
+    name = " ".join(namesplit)
+    print(components[0],":",name)
