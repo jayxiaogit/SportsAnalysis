@@ -30,10 +30,10 @@ columns = [
 # Read the CSV file into a pandas DataFrame
 dfpoints = pd.read_csv(file_path, names=columns, skiprows=1)
 
-file_path = 'prizemoneydata.csv'
+file_path2 = 'prizemoneydata.csv'
 
 # Read the CSV file into a pandas DataFrame
-dfprize = pd.read_csv(file_path, names=columns, skiprows=1)
+dfprize = pd.read_csv(file_path2, names=columns, skiprows=1)
 
 # cleaning up the dataframes
 dfpoints.fillna(0, inplace=True)  # Replace NaN values with 0
@@ -183,13 +183,19 @@ selected_tournaments.sort(key=lambda x: x[0])
 
 # Print the sorted results
 for tournament_info in selected_tournaments:
-    tournamentinfo = tournament_info[1]
-    components = tournamentinfo.split(":")
-    tournamentname = components[1]
-    if tournamentname != "Rest":
-        namesplit = tournamentname.split("_")
-        namesplit = namesplit[1::]
-        name = " ".join(namesplit)
-        print(components[0],":",name)
+    week, tournament_info_str = tournament_info
+    components = tournament_info_str.split(":")
+    tournamentname = components[1].strip()
+
+    if "Rest" in tournamentname:
+        print(components[0], ":", "Rest")
     else:
-        print(components[0],":","Rest")
+        listname = []
+        listname = tournamentname.split("_")
+        printname = " ".join(listname[1::])
+        print(components[0], ":", printname)
+
+
+
+
+
