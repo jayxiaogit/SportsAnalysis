@@ -1,17 +1,114 @@
+#Jay Xiao and Kamila Wong
+#this is roughdraft number 2 of our code. This code has dials in use
+#gathering information from player
+playerLocationLat = float(input("input your training location latitude: "))
+playerLocationLong = float(input("input your training location longitude: "))
+playerRanking = int(input("enter your current ranking: "))
+
+#opportunity to add more dials later
+#add dials!! then adjustment formula
+dialpoints = int(input("Give a rating of how important points are to you (1-10): "))
+dialearnings = int(input("Give a rating of how important earnings are to you (1-10): "))
+dialdistance = int(input("Give a rating of how important distance is to you (1-10): "))
+restInput = int(input("How many weeks in a row can you play tournaments?: "))
+
+rest_tournament = "Rest"
+
+#converting the data of the csv files
+import pandas as pd
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize
 
-# Additional Input data for Rest weeks
-rest_tournament = 'Rest'
+file_path = 'pointsdata.csv'
 
-# Input data
+# Specify the column names
+columns = [
+    'Week', 'Type', 'Tournament', 'Location', 'Surface',
+    'Winner', 'Finalist', 'SF', 'QF', 'R16', 'R32', 'R64', 'R128',
+    'Coord (lat)', 'Coord (long)'
+]
+
+# Read the CSV file into a pandas DataFrame
+dfpoints = pd.read_csv(file_path, names=columns, skiprows=1)
+
+file_path2 = 'prizemoneydata.csv'
+
+# Read the CSV file into a pandas DataFrame
+dfprize = pd.read_csv(file_path2, names=columns, skiprows=1)
+
+# cleaning up the dataframes
+dfpoints.fillna(0, inplace=True)  # Replace NaN values with 0
+dfprize.fillna(0, inplace=True)  # Replace NaN values with 0
+dfpoints['Week'] = dfpoints['Week'].astype(int)
+dfpoints['Coord (lat)'] = dfpoints['Coord (lat)'].astype(float)
+dfpoints['Coord (long)'] = dfpoints['Coord (long)'].astype(float)
+
+
+#calculations before optimization code
+#make a dictionary to store everything?
+#need to calculate distance between points
+import math
+
+def distanceCalculator(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth's radius in kilometers
+
+    # Convert latitude and longitude from degrees to radians
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+
+    # Compute differences in latitude and longitude
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    # Haversine formula
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    distance = R * c
+
+    return distance
+
+distance = []
+lat_array = dfprize['Coord (lat)'].values
+long_array = dfprize['Coord (long)'].values
+for i in range(len(dfprize)):
+    distance.append(distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i]))
+
+#need to calculate expected return:
+#make some function to calculate the expected round a player will get to per tournament
+# RANKING WILL BE INPUTTED
+# REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
+def calculate_expected_earnings(earnings, playerRanking):
+    expected_earnings = earnings * (0.99999 ** playerRanking)
+    return expected_earnings
+
+def calculate_expected_points(points, playerRanking):
+    expected_points = points * (0.9999999 ** playerRanking)
+    return expected_points
+
+# Add expected points and earnings to arrays
+points = []
+earnings = []
+for i in range(len(distance)):
+    if dfpoints["Type"][i] == 'GS':
+        points.append(calculate_expected_points(2000,playerRanking))
+    else:
+        points.append(calculate_expected_points(int(dfpoints["Type"][i]),playerRanking))
+    winnings = int(''.join(filter(str.isdigit, dfprize["Winner"][i])))
+    earnings.append(calculate_expected_earnings(winnings,playerRanking))
+
+
+
+#make the final dataframe we will use for optimization
 data_by_week = {}
+week = dfprize['Week'].values
+tournament = dfprize['Tournament'].values
+location = dfprize['Location'].values
 
-points = [470, 280, 2000, 280, 470, 900, 200, 300, 2000, 870, 100, 200]
-earnings = [120150, 120150, 34228, 32888, 2395039, 24332, 49323, 23904, 29030, 90393, 30900, 90909]
-distance = [1000, 200, 300, 403, 293, 230, 93, 30, 201, 1000, 293, 192]
-tournament = ['Adelaide International', 'ASB Classic', 'Hobart International', 'Thailand Open', 'Australian Open', 'Dubai Tennis Championships', 'BNP Paribas Open', 'Qatar Open', 'ATX Open', 'Merida Open Akron', 'Porsche Tennis Grand Prix', 'Mutua Madrid Open']
-week = [1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5]
-
+#testing to ensure proper data processing
+"""print(week)
+print(points)
+print(earnings)
+print(distance)
+print(tournament)
+"""
 for w, p, e, d, t in zip(week, points, earnings, distance, tournament):
     if w not in data_by_week:
         data_by_week[w] = {'points': [], 'earnings': [], 'distance': [], 'tournament': []}
@@ -37,20 +134,24 @@ x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
 y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
 
 # Objective function
-model += lpSum(data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
-               data_by_week[wk]['points'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] for wk in weeks for i in range(len(data_by_week[wk]['points'])))
+model += lpSum(
+    dialpoints * data_by_week[wk]['points'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
+    dialearnings * data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
+    dialdistance * data_by_week[wk]['distance'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
+    for wk in weeks for i in range(len(data_by_week[wk]['points'])))
+
 
 # Constraints
-restInput = 4
 weeks = list(weeks)
 for week_index, week in enumerate(weeks):
     model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
 
-# Ensure the player doesn't play for restInput consecutive weeks
+# Ensure the player doesn't play for more than restInput consecutive weeks
 for i in range(len(weeks) - restInput + 1):
     consecutive_weeks = weeks[i:i + restInput]
-    model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
+    model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput
     model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
+
 
 
 
@@ -75,8 +176,32 @@ for var in model.variables():
 # Sort the selected tournaments by week
 selected_tournaments.sort(key=lambda x: x[0])
 
+# Find missing weeks and fill in with "Rest"
+max_week = selected_tournaments[-1][0] if selected_tournaments else 0
+
+for i in range(1, max_week + 1):
+    week_exists = any(week[0] == i for week in selected_tournaments)
+    if not week_exists:
+        selected_tournaments.append((i, f"Week {i}: Rest"))
+
+# Sort the selected tournaments by week again (after adding "Rest" entries)
+selected_tournaments.sort(key=lambda x: x[0])
+
 # Print the sorted results
 for tournament_info in selected_tournaments:
-    print(tournament_info[1])
+    week, tournament_info_str = tournament_info
+    components = tournament_info_str.split(":")
+    tournamentname = components[1].strip()
+
+    if "Rest" in tournamentname:
+        print(components[0], ":", "Rest")
+    else:
+        listname = []
+        listname = tournamentname.split("_")
+        printname = " ".join(listname[1::])
+        print(components[0], ":", printname)
+
+
+
 
 
