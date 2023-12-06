@@ -71,7 +71,7 @@ long_array = dfprize['Coord (long)'].values
 for i in range(len(dfprize)):
     distance.append(distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i]))
 
-#need to calculate expected return: TODO PLZ KAMILA
+#need to calculate expected return:
 #make some function to calculate the expected round a player will get to per tournament
 # RANKING WILL BE INPUTTED
 # REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
@@ -186,7 +186,10 @@ for tournament_info in selected_tournaments:
     tournamentinfo = tournament_info[1]
     components = tournamentinfo.split(":")
     tournamentname = components[1]
-    namesplit = tournamentname.split("_")
-    namesplit = namesplit[1::]
-    name = " ".join(namesplit)
-    print(components[0],":",name)
+    if tournamentname != "Rest":
+        namesplit = tournamentname.split("_")
+        namesplit = namesplit[1::]
+        name = " ".join(namesplit)
+        print(components[0],":",name)
+    else:
+        print(components[0],":","Rest")
