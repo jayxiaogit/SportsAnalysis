@@ -1,6 +1,10 @@
+print("hi lol")
+
 import pandas as pd
 
-print("hi lol")
+print("yay it works")
+
+
 # Read the CSV files into a DataFrame
 df2013 = pd.read_csv('2013.csv')
 df2013 = df2013[['tourney_level','winner_rank','loser_rank']]
@@ -26,4 +30,20 @@ df2023 = pd.read_csv('2023.csv')
 df2023 = df2023[['tourney_level','winner_rank','loser_rank']]
 
 result_df = pd.concat([df2013, df2014, df2015, df2016, df2017, df2018, df2019, df2020, df2021, df2022, df2023], ignore_index=True)
+
+# Define categories: 'G' = Grand Slams, 'M' = Masters 1000s, 'A' = other tour-level events, 'C' = Challengers, 'S' = Satellites/ITFs, 'P' = Premier, and 'I' = International. 
+categories = ['G', 'M', 'P', 'I', 'A', 'C', 'S']
+
+
+# Split dataframe based on categories
+dfs = {}
+for category in categories:
+    dfs[category] = df[df['Category'] == category]
+
+# Dataframes for other categories
+dfs['other'] = df[~df['Category'].isin(categories)]
+
+# Access the dataframes
+for category, df_category in dfs.items():
+    print(f"Dataframe for category '{category}':\n{df_category}\n")
 
