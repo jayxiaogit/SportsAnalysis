@@ -76,11 +76,11 @@ for i in range(len(dfprize)):
 # RANKING WILL BE INPUTTED
 # REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
 def calculate_expected_earnings(ranking):
-    expected_earnings = 100000 - 10 * ranking
+    expected_earnings = max(0,100000 - 10 * ranking)
     return expected_earnings
 
 def calculate_expected_points(ranking):
-    expected_points = 500 - ranking
+    expected_points = max(0, 20*(500 - ranking))
     return expected_points
 
 # Add expected points and earnings to arrays
@@ -131,7 +131,7 @@ y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
 # Objective function
 model += lpSum(
     dialpoints * data_by_week[wk]['points'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
-    dialearnings * data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
+    dialearnings * data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] -
     dialdistance * data_by_week[wk]['distance'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
     for wk in weeks for i in range(len(data_by_week[wk]['points'])))
 
