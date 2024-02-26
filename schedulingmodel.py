@@ -1,8 +1,28 @@
+import requests
 #Jay Xiao and Kamila Wong
 #this is roughdraft number 2 of our code. This code has dials in use
+
+# we will add the api key into the site rather than hard coded for security purposes later
+APIkey = 'b0b87d2ec761f68e57ec9c3a556bddf8'
+zipcode = input("input your training location zipcode: ")
+countrycode = input('input your training location\'s country code')
+# construct the API request URL
+endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={APIkey}'
+
+# send the request
+response = requests.get(endpoint)
+
+# handle the response
+if response.status_code == 200:
+    data = response.json()
+    playerLocationLat = data['lat']
+    playerLocationLong = data['lon']
+else:
+    print("Error:", response.reason)
+
 #gathering information from player
-playerLocationLat = float(input("input your training location latitude: "))
-playerLocationLong = float(input("input your training location longitude: "))
+#playerLocationLat = float(input("input your training location latitude: "))
+#playerLocationLong = float(input("input your training location longitude: "))
 playerRanking = int(input("enter your current ranking: "))
 
 #opportunity to add more dials later
