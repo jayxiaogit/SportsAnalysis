@@ -1,28 +1,8 @@
-import requests
-#Jay Xiao, Kamila Wong, and Taylor Rohovit
+#Jay Xiao and Kamila Wong
 #this is roughdraft number 2 of our code. This code has dials in use
-
-# we will add the api key into the site rather than hard coded for security purposes later
-APIkey = 'b0b87d2ec761f68e57ec9c3a556bddf8'
-zipcode = input("input your training location zipcode: ")
-countrycode = input('input your training location\'s country code')
-# construct the API request URL
-endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={APIkey}'
-
-# send the request
-response = requests.get(endpoint)
-
-# handle the response
-if response.status_code == 200:
-    data = response.json()
-    playerLocationLat = data['lat']
-    playerLocationLong = data['lon']
-else:
-    print("Error:", response.reason)
-
 #gathering information from player
-#playerLocationLat = float(input("input your training location latitude: "))
-#playerLocationLong = float(input("input your training location longitude: "))
+playerLocationLat = float(input("input your training location latitude: "))
+playerLocationLong = float(input("input your training location longitude: "))
 playerRanking = int(input("enter your current ranking: "))
 
 #opportunity to add more dials later
@@ -96,11 +76,11 @@ for i in range(len(dfprize)):
 # RANKING WILL BE INPUTTED
 # REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
 def calculate_expected_earnings(ranking):
-    expected_earnings = max(0,100000 - 10 * ranking)
+    expected_earnings = 100000 - 10 * ranking
     return expected_earnings
 
 def calculate_expected_points(ranking):
-    expected_points = max(0, 20*(500 - ranking))
+    expected_points = 500 - ranking
     return expected_points
 
 # Add expected points and earnings to arrays
@@ -139,35 +119,43 @@ for w in all_weeks:
     if w not in data_by_week:
         data_by_week[w] = {'points': [0], 'earnings': [0], 'distance': [0], 'tournament': [rest_tournament]}
 
+
 # PuLP model
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
-weeks = data_by_week.keys()
+weeks = list(data_by_week.keys())  # Convert dictionary_keys object to a list
 tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
 
 x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
 y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
+tournament_selected = LpVariable.dicts("TournamentSelected", tournaments, cat="Binary")
+rest_week_selected = LpVariable.dicts("RestWeekSelected", weeks, cat="Binary")
+two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
+
+# Constraints
+for week_index, week in enumerate(weeks):
+    model += lpSum(tournament_selected[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
+
+# Ensure the player doesn't play for restInput consecutive weeks
+for i in range(len(weeks) - restInput - 1):
+    consecutive_weeks = weeks[i:i + restInput]
+    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
+
+    for wk in consecutive_weeks:
+        model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for j in range(len(data_by_week[wk]['points']))) <= rest_week_selected[wk]
+
+        # If the end of a two-week tournament falls in the consecutive weeks, move the rest week to the week after that
+        two_week_tournament_name = f"{data_by_week[wk]['tournament'][0]}_{wk}_0"  # Assuming the first tournament in the week is a two-week tournament
+        if wk + 1 in rest_week_selected:
+            model += lpSum(x[two_week_tournament_name] for j in range(len(data_by_week[wk]['points']))) >= two_week_tournament_end[wk]
+            model += two_week_tournament_end[wk] >= rest_week_selected[wk + 1]  # Move the rest week to the week after the two-week tournament
 
 # Objective function
 model += lpSum(
     dialpoints * data_by_week[wk]['points'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
-    dialearnings * data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] -
+    dialearnings * data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
     dialdistance * data_by_week[wk]['distance'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
     for wk in weeks for i in range(len(data_by_week[wk]['points'])))
-
-
-# Constraints
-weeks = list(weeks)
-for week_index, week in enumerate(weeks):
-    model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
-
-# Ensure the player doesn't play for restInput consecutive weeks
-for i in range(len(weeks) - restInput + 1):
-    consecutive_weeks = weeks[i:i + restInput]
-    model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
-    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
-
-
 
 # Solve the optimization problem
 model.solve()
@@ -181,11 +169,12 @@ for var in model.variables():
         # Split the variable name and extract components
         components = var.name.split('_')
         
-        # Extract week, tournament name, and index from the variable name
-        week_index = components[-2]
+         # Extract week, tournament name, and index from the variable name
+        week_index = int(components[-2]) if components[-2].isdigit() else None
         tournament_name = "_".join(components[:-2])
         
-        selected_tournaments.append((int(week_index), f"Week {week_index}: {tournament_name}"))
+        if week_index is not None:
+            selected_tournaments.append((week_index, f"Week {week_index}: {tournament_name}"))
 
 # Sort the selected tournaments by week
 selected_tournaments.sort(key=lambda x: x[0])
