@@ -1,13 +1,19 @@
 import requests
+import os
+from dotenv import load_dotenv
+
 #Jay Xiao and Kamila Wong
 #this is roughdraft number 2 of our code. This code has dials in use
 
+# Load environment variables from .env file
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
+
 # we will add the api key into the site rather than hard coded for security purposes later
-APIkey = 'b0b87d2ec761f68e57ec9c3a556bddf8'
 zipcode = input("input your training location zipcode: ")
 countrycode = input('input your training location\'s country code')
 # construct the API request URL
-endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={APIkey}'
+endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={API_KEY}'
 
 # send the request
 response = requests.get(endpoint)

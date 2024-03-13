@@ -1,0 +1,55 @@
+<html>
+<header>
+    <title>Test page</title>
+</header>
+
+<body>
+    <div>This is simple test to get schedule from backend</div>
+
+    <input type="text" id="zipcode" placeholder="Zipcode">
+    <input type="text" id="countrycode" placeholder="Country code">
+    <input type="text" id="rank" placeholder="Rank">
+    <input type="text" id="rest" placeholder="Rest">
+
+    <button onclick="getSchedule()">Get schedule data</button>
+    <div id="result-container"></div>
+</body>
+<script>
+    var xhr = null;
+
+    getXmlHttpRequestObject = function () {
+        if (!xhr) {
+            // Create a new XMLHttpRequest object 
+            xhr = new XMLHttpRequest();
+        }
+        return xhr;
+    };
+
+    function dataCallback() {
+        // Check response is ready or not
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            console.log("Schedule received!");
+            dataDiv = document.getElementById('result-container');
+            // Set current data text
+            dataDiv.innerHTML = xhr.responseText;
+        }
+    }
+
+    function getSchedule() {
+        console.log("Get schedule...");
+        xhr = getXmlHttpRequestObject();
+        xhr.onreadystatechange = dataCallback;
+
+        var zipcode = document.getElementById("zipcode").value;
+        var countrycode = document.getElementById("countrycode").value;
+        var rank = document.getElementById("rank").value;
+        var rest = document.getElementById("rest").value;
+        // asynchronous requests
+        xhr.open("GET", "http://localhost:6969/schedule?zipcode=" + zipcode + "&countrycode=" + countrycode + "&rank=" + rank + "&rest=" + rest, true);
+        // Send the request over the network
+        xhr.send(null);
+    }
+
+</script>
+
+</html>
