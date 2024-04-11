@@ -1,191 +1,87 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8" />
     <style>
-      .home-page {
-        background-color: #ffffff;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        width: 100%;
-      }
-      
-      .home-page .div {
-        background-color: #ffffff;
-        overflow: hidden;
-        width: 100%;
-        height: 100vh;
-        position: relative;
-      }
-      
-      .home-page .navbar {
-        position: absolute;
-        width: 1585px;
-        height: 57px;
-        top: 0;
-        left: -68px;
-      }
-      
-      .home-page .rectangle {
-        width: 1440px;
-        left: 68px;
-        background-color: #002d72;
-        border-color: #68ace5;
-        position: absolute;
-        height: 57px;
-        top: 0;
-        border: 1px solid;
-      }
-      
-      .home-page .rectangle-2 {
-        width: 133px;
-        left: 68px;
-        background-color: #68ace5;
-        position: absolute;
-        height: 57px;
-        top: 0;
-        border: 1px solid;
-      }
-      
-      .home-page .rectangle-3 {
-        width: 161px;
-        left: 201px;
-        background-color: #002d72;
-        position: absolute;
-        height: 57px;
-        top: 0;
-        border: 1px solid;
-      }
-      
-      .home-page .rectangle-4 {
-        width: 144px;
-        left: 362px;
-        background-color: #002d72;
-        position: absolute;
-        height: 57px;
-        top: 0;
-        border: 1px solid;
-      }
-      
-      .home-page .rectangle-5 {
-        width: 117px;
-        left: 1391px;
-        background-color: #002d72;
-        position: absolute;
-        height: 57px;
-        top: 0;
-        border: 1px solid;
-      }
-      
-      .home-page .text-wrapper {
-        width: 268px;
-        left: 0;
-        position: absolute;
-        top: 11px;
-        font-family: "Faustina-Regular", Helvetica;
-        font-weight: 400;
-        color: #ffffff;
-        font-size: 25px;
-        text-align: center;
-        letter-spacing: 0;
-        line-height: normal;
-      }
-      
-      .home-page .text-wrapper-2 {
-        position: absolute;
-        width: 268px;
-        top: 11px;
-        left: 147px;
-        font-family: "Faustina-Regular", Helvetica;
-        font-weight: 400;
-        color: #ffffff;
-        font-size: 25px;
-        text-align: center;
-        letter-spacing: 0;
-        line-height: normal;
-      }
-      
-      .home-page .text-wrapper-3 {
-        position: absolute;
-        width: 269px;
-        top: 11px;
-        left: 297px;
-        font-family: "Faustina-Regular", Helvetica;
-        font-weight: 400;
-        color: #ffffff;
-        font-size: 25px;
-        text-align: center;
-        letter-spacing: 0;
-        line-height: normal;
-      }
-      
-      .home-page .text-wrapper-4 {
-        width: 269px;
-        left: 1316px;
-        position: absolute;
-        top: 11px;
-        font-family: "Faustina-Regular", Helvetica;
-        font-weight: 400;
-        color: #ffffff;
-        font-size: 25px;
-        text-align: center;
-        letter-spacing: 0;
-        line-height: normal;
-      }
-      
-      .home-page .p {
-        position: absolute;
-        width: 951px;
-        top: 99px;
-        left: 245px;
-        font-family: "Faustina-Bold", Helvetica;
-        font-weight: 700;
-        color: #002d72;
-        font-size: 50px;
-        text-align: center;
-        letter-spacing: 0;
-        line-height: normal;
-      }
-      
-      .home-page .the-purpose-of-this {
-        position: absolute;
-        width: 1238px;
-        top: 249px;
-        left: 101px;
-        font-family: "Faustina-Regular", Helvetica;
-        font-weight: 400;
-        color: #002d72;
-        font-size: 30px;
-        text-align: center;
-        letter-spacing: 0;
-        line-height: normal;
-      }
+        .home-page {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Center the buttons vertically */
+            width: 100%;
+            height: 57px;
+            background-color: #002d72; /* Set default background color */
+            color: #ffffff; /* Set default text color */
+        }
+
+        .navbar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: "Faustina-Regular", Helvetica;
+            font-weight: 400;
+            color: inherit;
+            font-size: 16px;
+            text-align: center;
+            padding: 10px 20px;
+        }
+
+        .content {
+            width: 100%;
+            padding: 20px;
+        }
+
+        .content p {
+            font-family: "Faustina-Regular", Helvetica;
+            font-size: 18px;
+            color: #002d72;
+            text-align: center;
+        }
+
+        #homeButton.active {
+            background-color: #68ace5; /* Set active button background color */
+            color: #ffffff; /* Set active button text color */
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="home-page">
-      <div class="div">
         <div class="navbar">
-          <div class="rectangle"></div>
-          <div class="rectangle-2"></div>
-          <div class="rectangle-3"></div>
-          <div class="rectangle-4"></div>
-          <div class="rectangle-5"></div>
-          <button class="text-wrapper" type="button" id="Home button">Home</button>
-          <button class="text-wrapper-2" type="button" id = "Get Started button">Get Started</button>
-          <button class="text-wrapper-3" type="button" id = "About button">About Us</button>
-          <button class="text-wrapper-4" type="button" id = "Login button">Login</button>
+            <div class="navbar-buttons-left">
+                <button class="text-wrapper" id="homeButton" type="button">Home</button>
+                <button class="text-wrapper" type="button">Get Started</button>
+                <button class="text-wrapper" type="button">About Us</button>
+            </div>
+            <div class="navbar-buttons-right">
+                <button class="text-wrapper" type="button">Login</button>
+            </div>
         </div>
-        <p class="p">Johns Hopkins Sports Analysis Research Group - Tennis</p>
-        <p class="the-purpose-of-this">
-          The purpose of this research project is to develop a model for optimizing the tournament schedule of
-          Women&#39;s Tennis Association (WTA) players. The model will consider a multitude of factors such as player
-          ranking, travel and accommodation costs, physical limitations, and the type of court surface. The goal is to
-          create an efficient schedule that maximizes a player&#39;s points earned per season while managing costs
-          effectively.
-        </p>
-      </div>
+        <div class="content">
+            <p>Johns Hopkins Sports Analysis Research Group - Tennis</p>
+            <p>The purpose of this research project is to develop a model for optimizing the tournament schedule of Women's Tennis Association (WTA) players. The model will consider a multitude of factors such as player ranking, travel and accommodation costs, physical limitations, and the type of court surface. The goal is to create an efficient schedule that maximizes a player's points earned per season while managing costs effectively.</p>
+        </div>
     </div>
-  </body>
+    <script>
+        document.getElementById("homeButton").addEventListener("click", function() {
+            // Remove active class from all buttons except home button
+            var buttons = document.querySelectorAll('.text-wrapper:not(#homeButton)');
+            buttons.forEach(function(button) {
+                button.classList.remove('active');
+            });
+
+            // Add active class to the home button
+            this.classList.add('active');
+
+            // Redirect to the home page
+            window.location.href = "home.html"; // Replace "home.html" with your actual home page URL
+        });
+    </script>
+</body>
 </html>
