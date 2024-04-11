@@ -20,8 +20,6 @@ def InternationalPoints(inputRanking):
     for index, row in df.iterrows():
         # Get the value of the first column (assuming rank data is in the first column)
         rank = row[0]
-        if rank >= 800:
-            continue
     
         # Get the value of column 1 (assuming column index starts from 0)
         col_1_value = row[1]

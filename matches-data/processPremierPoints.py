@@ -20,31 +20,23 @@ def PremierPoints(inputRanking):
     for index, row in df.iterrows():
         # Get the value of the first column (assuming rank data is in the first column)
         rank = row[0]
-        if rank >= 800:
-            continue
     
         # Get the value of column 1 (assuming column index starts from 0)
         col_1_value = row[1]
     
         # Determine the new rank based on the value of column 1
         if col_1_value == "W":
-            new_rank = 2000
+            new_rank = 500
         elif col_1_value == "F":
-            new_rank = 1300
+            new_rank = 300
         elif col_1_value == "SF":
-            new_rank = 780
+            new_rank = 180
         elif col_1_value == "QF":
-            new_rank = 430
+            new_rank = 90
         elif col_1_value == "R16":
-            new_rank = 240
+            new_rank = 45
         elif col_1_value == "R32":
-            new_rank = 130
-        elif col_1_value == "R64":
-            new_rank = 70
-        elif col_1_value == "R128":
-            new_rank = 10
-        elif col_1_value == "QF":
-            new_rank = 40
+            new_rank = 20
 
     
         # Add the rank and new rank to the result array
