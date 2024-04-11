@@ -1,11 +1,11 @@
 from flask import Flask, request, jsonify
 import flask
 import json
-from flask_cors import CORS
+#from flask_cors import CORS
 from schedulingmodelRefactor import print_results
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 
 @app.route("/")
 def hello():
