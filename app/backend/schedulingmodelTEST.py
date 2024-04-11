@@ -60,8 +60,8 @@ for i in range(len(dfpoints)):
         #remove International
         if dfpoints.loc[i, 'Type'] == 250:
             #remove from both
-            dfpoints.drop([i])
-            dfprize.drop([i])
+            dfpoints.drop([i], inplace=True)
+            dfprize.drop([i], inplace=True)
     elif playerRanking < 1000:
         #remove Premier
         if dfpoints.loc[i, 'Type'] == 500:
