@@ -119,53 +119,99 @@ for w in all_weeks:
     if w not in data_by_week:
         data_by_week[w] = {'points': [0], 'earnings': [0], 'distance': [0], 'tournament': [rest_tournament]}
 
-
 # PuLP model
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
-weeks = list(data_by_week.keys())  # Convert dictionary_keys object to a list
+weeks = data_by_week.keys()
 tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
 
 x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
 y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
 tournament_selected = LpVariable.dicts("TournamentSelected", tournaments, cat="Binary")
-rest_week_selected = LpVariable.dicts("RestWeekSelected", weeks, cat="Binary")
+# New variable to represent the end of a two-week tournament
 two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
 
+
 # Constraints
+weeks = list(weeks)
 for week_index, week in enumerate(weeks):
+    #model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
     model += lpSum(tournament_selected[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
 
 # Ensure the player doesn't play for restInput consecutive weeks
-for i in range(len(weeks) - restInput - 1):
+for i in range(len(weeks) - restInput + 1):
     consecutive_weeks = weeks[i:i + restInput]
-    #model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
+    model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
     model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
+    
 
+'''
+rest_week_selected = LpVariable(f"RestWeekSelected_{i}", cat="Binary")  # New binary variable for rest week selection
+
+# Ensure the player doesn't play for restInput consecutive weeks
+for i in range(len(weeks) - restInput + 1):
+    consecutive_weeks = weeks[i:i + restInput]
+
+    # If the end of a two-week tournament falls in the consecutive weeks, add constraint to select rest week after that
     for wk in consecutive_weeks:
-        model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for j in range(len(data_by_week[wk]['points']))) <= rest_week_selected[wk]
+        model += lpSum(two_week_tournament_end[wk]) >= 1
 
-        # If the end of a two-week tournament falls in the consecutive weeks, move the rest week to the week after that
-        two_week_tournament_name_case_1 = f"{data_by_week[wk]['tournament'][0]}_{wk}_0"  # Assuming the first tournament in the week is a two-week tournament
-        if wk + 1 in rest_week_selected:
-            model += lpSum(x[two_week_tournament_name_case_1] for j in range(len(data_by_week[wk]['points']))) >= two_week_tournament_end[wk]
-            model += two_week_tournament_end[wk] >= rest_week_selected[wk + 1]  # Move the rest week to the week after the two-week tournament
+    # At least one of the consecutive weeks must be a rest week
+    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1
+
+    # Ensure that if rest_week_selected is 1, at least one of the consecutive weeks must be a rest week
+    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1 - len(consecutive_weeks) + rest_week_selected
+
+    # Ensure that if a rest week is selected, it is selected for all consecutive weeks
+    for wk in consecutive_weeks:
+        model += rest_week_selected >= y[wk]  # If rest_week_selected is 1, y[wk] must be 1
+
+
+
+    # Change the tournament name to 'rest_tournament' if the rest week is selected
+    for wk in consecutive_weeks:
+        for j in range(len(data_by_week[wk]['points'])):
+            model += tournament_selected[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] == rest_week_selected
+
+
+# Add constraints to ensure that rest weeks are not selected if they belong to a two-week tournament
+for wk in weeks:
+    two_week_tournament_name = f"{data_by_week[wk]['tournament'][0]}_{wk}_0"  # Assuming the first tournament in the week is a two-week tournament
+    model += two_week_tournament_end[wk] >= x[two_week_tournament_name]
+    model += two_week_tournament_end[wk] >= rest_week_selected
+'''
+
+
+# Create a dictionary to store the selected tournaments by name
+selected_tournaments_by_name = {}
+
+# Add constraints to link tournaments with the same name
+for week_index, week in enumerate(weeks):
+    for i in range(len(data_by_week[week]['tournament'])):
+        tournament_name = f"{data_by_week[week]['tournament'][i]}_{i}"
+
+        # If the tournament name is already in the dictionary, link it with the previous week
+        if tournament_name in selected_tournaments_by_name:
+            model += lpSum(tournament_selected[tournament_name] >= selected_tournaments_by_name[tournament_name])
         
-        # If the beginning of a two-week tournament falls in the consecutive weeks, move the rest week to the week before that
-        two_week_tournament_name_case_2 = f"{data_by_week[wk]['tournament'][0]}_{wk}_0"  # Assuming the first tournament in the week is a two-week tournament
-        if wk - 1 in rest_week_selected:
-            model += lpSum(x[two_week_tournament_name_case_2] for j in range(len(data_by_week[wk]['points']))) >= two_week_tournament_end[wk - 1]
-            model += two_week_tournament_end[wk - 1] >= rest_week_selected[wk]  # Move the rest week to the week before the two-week tournament
+        # Update the dictionary with the current week's tournament
+        selected_tournaments_by_name[week] = tournament_name
 
-# Objective function
+
+# Update the objective function to use the new binary variables
 model += lpSum(
     dialpoints * data_by_week[wk]['points'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
     dialearnings * data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
     dialdistance * data_by_week[wk]['distance'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
+    #dialpoints * data_by_week[wk]['points'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
+    #dialearnings * data_by_week[wk]['earnings'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
+    #dialdistance * data_by_week[wk]['distance'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
     for wk in weeks for i in range(len(data_by_week[wk]['points'])))
+
 
 # Solve the optimization problem
 model.solve()
+
 
 # Print the results
 print("Selected Tournaments:")
