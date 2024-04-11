@@ -57,22 +57,22 @@ dfpoints['Coord (long)'] = dfpoints['Coord (long)'].astype(float)
 #removing tournaments that players won't make based on rank
 for i in reversed(range(len(dfpoints))):
     # Your conditions to remove rows
-    if playerRanking < 1200:
+    if playerRanking > 1200:
         # Remove International
         if dfpoints.loc[i, 'Type'] == 250:
             dfpoints.drop([i], inplace=True)
             dfprize.drop([i], inplace=True)
-    elif playerRanking < 1000:
+    elif playerRanking > 1000:
         # Remove Premier
         if dfpoints.loc[i, 'Type'] == 500:
             dfpoints.drop([i], inplace=True)
             dfprize.drop([i], inplace=True)
-    elif playerRanking < 800:
+    elif playerRanking > 800:
         # Remove Grand Slam
         if dfpoints.loc[i, 'Type'] == 'GS':
             dfpoints.drop([i], inplace=True)
             dfprize.drop([i], inplace=True)
-    elif playerRanking < 650:
+    elif playerRanking > 650:
         # Remove PM
         if dfpoints.loc[i, 'Type'] == 1000:
             dfpoints.drop([i], inplace=True)
