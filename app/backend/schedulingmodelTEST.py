@@ -113,6 +113,7 @@ for i in range(len(dfprize)):
 # RANKING WILL BE INPUTTED
 # REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
 def calculate_expected_earnings(level, ranking):
+    expected_earnings = 0
     if level == "GS":
         expected_earnings = GrandSlamEarnings(ranking)
     elif level == "PM" or level == 1000:
@@ -124,6 +125,7 @@ def calculate_expected_earnings(level, ranking):
     return expected_earnings
 
 def calculate_expected_points(level, ranking):
+    expected_points = 0
     if level == "GS":
         expected_points = GrandSlamPoints(ranking)
     elif level == "PM" or level == 1000:
