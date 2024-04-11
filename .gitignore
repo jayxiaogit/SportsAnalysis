@@ -4,3 +4,5 @@ __pycache__/
 
 app/backend/__pycache__/
 app/backend/venv/
+
+app/backend/schedule_data.txt

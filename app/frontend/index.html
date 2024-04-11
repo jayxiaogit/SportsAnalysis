@@ -12,7 +12,7 @@
     <input type="text" id="rest" placeholder="Rest">
 
     <button onclick="getSchedule()">Get schedule data</button>
-    <div id="result-container"></div>
+    <div id="result-container" style="white-space:pre"></div>
 </body>
 <script>
     var xhr = null;
@@ -29,9 +29,9 @@
         // Check response is ready or not
         if (xhr.readyState == 4 && xhr.status == 200) {
             console.log("Schedule received!");
-            dataDiv = document.getElementById('result-container');
-            // Set current data text
-            dataDiv.innerHTML = xhr.responseText;
+            var dataDiv = document.getElementById('result-container');
+            // Set formatted data in the container
+            dataDiv.innerHTML = JSON.parse(xhr.responseText);
         }
     }
 
