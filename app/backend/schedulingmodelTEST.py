@@ -13,6 +13,7 @@ from processInternational import *
 from processInternationalPoints import *
 
 #gathering information from player
+playerName = (input("input player name: "))
 playerLocationLat = float(input("input your training location latitude: "))
 playerLocationLong = float(input("input your training location longitude: "))
 playerRanking = int(input("enter your current ranking: "))
