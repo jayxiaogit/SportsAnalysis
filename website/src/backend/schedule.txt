@@ -1,0 +1,44 @@
+Selected Tournaments:
+Week 1:Adelaide International 1
+Week 2:Adelaide International 2
+Week 3:Australian Open
+Week 4:Australian Open
+Week 5:Rest
+Week 6:Mubadala Abu Dhabi Open
+Week 7:Qatar TotalEnergies Open
+Week 8:Merida Open Akron
+Week 9:Rest
+Week 10:BNP Paribas Open
+Week 11:BNP Paribas Open
+Week 12:Miami Open 
+Week 13:Miami Open 
+Week 14:Rest
+Week 15:Rest
+Week 16:Porsche Tennis Grand Prix
+Week 17:Mutua Madrid Open
+Week 18:Mutua Madrid Open
+Week 19:Internazionali BNL d'Italia
+Week 20:Rest
+Week 21:Internationaux de Strasbourg
+Week 22:Roland Garros
+Week 23:Roland Garros
+Week 24:Libema Open
+Week 25:Rest
+Week 26:Bad Homburg Open
+Week 27:The Championships
+Week 28:The Championships
+Week 29:34 Palermo Ladies Open
+Week 30:Rest
+Week 31:Mubadala Citi DC Open
+Week 32:Omnium Banque National
+Week 33:Rest
+Week 34:Abierto GNP Seguros
+Week 35:US Open
+Week 36:US Open
+Week 37:Kinoshita Group Japan Open Tennis Championships
+Week 38:Rest
+Week 39:Ningbo Open
+Week 40:Rest
+Week 41:Prudential Hong Kong Tennis Open
+Week 41:Zhengzhou Open
+Week 42:Jiangxi Open
