@@ -1,5 +1,3 @@
-import { log } from "@/lib/logger";
-import LoggedOut from "./views/logged-out";
 import GetStarted from "./views/get-started";
 import ErrorPage from "./views/error-page";
 import Dashboard from "./views/dashboard";
@@ -8,19 +6,16 @@ import SignInPage from "./views/signin";
 import SignUpPage from "./views/signup";
 import SignOutPage from "./views/signout"
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
-import LoggedIn from "./views/logged-in";
+import Home from "./views/home";
 import GenerateSchedule from "./views/generate-schedule";
 import NewSchedule from "./views/new-schedule";
 
 function App() {
-  log.debug("Home!");
-  const user = useUser();
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: user ? <LoggedIn /> : <LoggedOut />,
+      element: <Home />,
       errorElement: <ErrorPage />,
     },
     {
