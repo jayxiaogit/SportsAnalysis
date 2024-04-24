@@ -1,6 +1,19 @@
 #Jay Xiao and Kamila Wong
 #this is roughdraft number 2 of our code. This code has dials in use
+
+#import expected returns models
+#from ERmodules import processGrandSlam, processGrandSlamPoints, processPremier, processPremierPoints, processPremierMandatory, processPremierMandatoryPoints, processInternational, processInternationalPoints
+from processGrandSlam import *
+from processGrandSlamPoints import *
+from processPremier import *
+from processPremierPoints import *
+from processPremierMandatory import *
+from processPremierMandatoryPoints import *
+from processInternational import *
+from processInternationalPoints import *
+
 #gathering information from player
+playerName = (input("input player name: "))
 playerLocationLat = float(input("input your training location latitude: "))
 playerLocationLong = float(input("input your training location longitude: "))
 playerRanking = int(input("enter your current ranking: "))
@@ -42,7 +55,32 @@ dfpoints['Week'] = dfpoints['Week'].astype(int)
 dfpoints['Coord (lat)'] = dfpoints['Coord (lat)'].astype(float)
 dfpoints['Coord (long)'] = dfpoints['Coord (long)'].astype(float)
 
+#removing tournaments that players won't make based on rank
+for i in reversed(range(len(dfpoints))):
+    # Your conditions to remove rows
+    if playerRanking > 1200:
+        # Remove International
+        if dfpoints.loc[i, 'Type'] == 250:
+            dfpoints.drop([i], inplace=True)
+            dfprize.drop([i], inplace=True)
+    elif playerRanking > 1000:
+        # Remove Premier
+        if dfpoints.loc[i, 'Type'] == 500:
+            dfpoints.drop([i], inplace=True)
+            dfprize.drop([i], inplace=True)
+    elif playerRanking > 800:
+        # Remove Grand Slam
+        if dfpoints.loc[i, 'Type'] == 'GS':
+            dfpoints.drop([i], inplace=True)
+            dfprize.drop([i], inplace=True)
+    elif playerRanking > 650:
+        # Remove PM
+        if dfpoints.loc[i, 'Type'] == 1000:
+            dfpoints.drop([i], inplace=True)
+            dfprize.drop([i], inplace=True)
 
+
+            
 #calculations before optimization code
 #make a dictionary to store everything?
 #need to calculate distance between points
@@ -75,20 +113,36 @@ for i in range(len(dfprize)):
 #make some function to calculate the expected round a player will get to per tournament
 # RANKING WILL BE INPUTTED
 # REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
-def calculate_expected_earnings(ranking):
-    expected_earnings = 100000 - 10 * ranking
+def calculate_expected_earnings(level, ranking):
+    expected_earnings = 0
+    if level == "GS":
+        expected_earnings = GrandSlamEarnings(ranking)
+    elif level == "PM" or level == 1000:
+        expected_earnings = PMEarnings(ranking)
+    elif level == "P" or level == 500:
+        expected_earnings = PremierEarnings(ranking)
+    elif level == "I" or level == 250:
+        expected_earnings = InternationalEarnings(ranking)
     return expected_earnings
 
-def calculate_expected_points(ranking):
-    expected_points = 500 - ranking
+def calculate_expected_points(level, ranking):
+    expected_points = 0
+    if level == "GS":
+        expected_points = GrandSlamPoints(ranking)
+    elif level == "PM" or level == 1000:
+        expected_points = PMPoints(ranking)
+    elif level == "P" or level == 500:
+        expected_points = PremierPoints(ranking)
+    elif level == "I" or level == 250:
+        expected_points = InternationalPoints(ranking)
     return expected_points
 
 # Add expected points and earnings to arrays
 points = []
 earnings = []
-for i in range(len(distance)):
-    points.append(calculate_expected_points(playerRanking))
-    earnings.append(calculate_expected_earnings(playerRanking))
+for i in range(len(dfprize)):
+    points.append(calculate_expected_points(dfprize['Type'].iloc[i], playerRanking))
+    earnings.append(calculate_expected_earnings(dfprize['Type'].iloc[i], playerRanking))
 
 
 #make the final dataframe we will use for optimization
@@ -256,6 +310,27 @@ for tournament_info in selected_tournaments:
         listname = tournamentname.split("_")
         printname = " ".join(listname[1::])
         print(components[0], ":", printname)
+
+    # Calculate total expected points and earnings
+total_expected_points = 0
+total_expected_earnings = 0
+
+for var in model.variables():
+    if var.varValue == 1 and "Rest" not in var.name:
+        components = var.name.split('_')
+        week_index = int(components[-2]) if components[-2].isdigit() else None
+        tournament_name = "_".join(components[:-2])
+        
+        if week_index is not None:
+            expected_points = data_by_week[week_index]['points'][int(components[-1])]
+            expected_earnings = data_by_week[week_index]['earnings'][int(components[-1])]
+            
+            total_expected_points += expected_points
+            total_expected_earnings += expected_earnings
+
+# Print total expected points and earnings
+print("Total Expected Points:", total_expected_points)
+print("Total Expected Earnings:", total_expected_earnings)
 
 
 
