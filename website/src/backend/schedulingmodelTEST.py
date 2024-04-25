@@ -178,6 +178,7 @@ model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
 weeks = data_by_week.keys()
 tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
+print(tournaments)
 
 x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
 y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
@@ -310,6 +311,27 @@ for tournament_info in selected_tournaments:
         listname = tournamentname.split("_")
         printname = " ".join(listname[1::])
         print(components[0], ":", printname)
+
+    # Calculate total expected points and earnings
+total_expected_points = 0
+total_expected_earnings = 0
+
+for var in model.variables():
+    if var.varValue == 1 and "Rest" not in var.name:
+        components = var.name.split('_')
+        week_index = int(components[-2]) if components[-2].isdigit() else None
+        tournament_name = "_".join(components[:-2])
+        
+        if week_index is not None:
+            expected_points = data_by_week[week_index]['points'][int(components[-1])]
+            expected_earnings = data_by_week[week_index]['earnings'][int(components[-1])]
+            
+            total_expected_points += expected_points
+            total_expected_earnings += expected_earnings
+
+# Print total expected points and earnings
+print("Total Expected Points:", total_expected_points)
+print("Total Expected Earnings:", total_expected_earnings)
 
 
 

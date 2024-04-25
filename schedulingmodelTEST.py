@@ -178,6 +178,7 @@ model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
 weeks = data_by_week.keys()
 tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
+print(tournaments)
 
 x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
 y = LpVariable.dicts("RestWeek", weeks, cat="Binary")

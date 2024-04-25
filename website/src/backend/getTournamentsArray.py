@@ -10,10 +10,10 @@ with open('pointsdata.csv', newline='') as csvfile:
     # Read each row and split it
     for i, row in enumerate(reader):
         tournaments.append({
-            id: i,
-            name: row[2],
-            week: row[0],
-            level: row[1],
+            'id': i,
+            'name': row[2],
+            'week': row[0],
+            'level': row[1],
         })
 
 print(tournaments)
