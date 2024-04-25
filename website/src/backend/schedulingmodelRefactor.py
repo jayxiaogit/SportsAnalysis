@@ -1,3 +1,4 @@
+import re
 import requests
 import os
 from dotenv import load_dotenv
@@ -72,7 +73,10 @@ def distanceCalculator(lat1, lon1, lat2, lon2):
 
     return distance
 
-def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, earningsInput, pointsInput):
+def clean_word(word):
+    return re.sub(r'[\d_]', '', word)
+
+def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, earningsInput, pointsInput, excluded):
     result = ""
     # construct the API request URL
     endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={API_KEY}'
@@ -203,12 +207,24 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     # PuLP model
     model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
+    excluded_array = excluded.split(',')
+    print("EXCLUDED\n")
+    print(excluded_array)
+    print("\n\n")
+
     weeks = data_by_week.keys()
     tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
+    filtered_tournaments = []
 
-    x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
+    # PLEASE ADD CODE TO FILTER THE TOURNAMENTS GIVEN THE EXCLUDED ARRAY
+
+    print("FILTERED TOURNAMENTS\n\n")
+    print(filtered_tournaments)
+    print('\n\n')
+
+    x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
     y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
-    tournament_selected = LpVariable.dicts("TournamentSelected", tournaments, cat="Binary")
+    tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
     # New variable to represent the end of a two-week tournament
     two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
 
@@ -300,10 +316,32 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
             tournament_component = components[0] + ":" + printname + "\n"
             result += tournament_component
 
+    total_expected_points = 0
+    total_expected_earnings = 0
+
+    for var in model.variables():
+        if var.varValue == 1 and "Rest" not in var.name:
+            components = var.name.split('_')
+            week_index = int(components[-2]) if components[-2].isdigit() else None
+            tournament_name = "_".join(components[:-2])
+            
+            if week_index is not None:
+                expected_points = data_by_week[week_index]['points'][int(components[-1])]
+                expected_earnings = data_by_week[week_index]['earnings'][int(components[-1])]
+                
+                total_expected_points += expected_points
+                total_expected_earnings += expected_earnings
+
+    result += "Total Expected Points: "
+    result += str(total_expected_points)
+    result += "\n"
+    result += "Total Expected Earnings: "
+    result += str(total_expected_earnings)
+    result += "\n"
     return result
 
 
 
 
-# with open('schedule.txt', 'w') as output_file:
-#     print_results('21218', 'US', '50', '5', output_file)
+# with open('schedule.txt', 'w'):
+#     print_results('21218', 'US', '50', '5', 9, 3, 2)
