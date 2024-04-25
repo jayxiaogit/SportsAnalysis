@@ -239,9 +239,35 @@ for w in all_weeks:
 # PuLP model
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
+excluded = "Adelaide International 1, Adelaide International 2"
+
+excluded_array = excluded.split(',')
+print("EXCLUDED\n")
+print(excluded_array)
+print("\n\n")
+
 weeks = data_by_week.keys()
 tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
+
+print("TOURNAMENTS\n")
 print(tournaments)
+print("\n\n")
+
+    # PLEASE ADD CODE TO FILTER THE TOURNAMENTS GIVEN THE EXCLUDED ARRAY
+filtered_tournaments = []
+    
+for tournament in tournaments:
+    add = True
+    for ex in excluded_array:
+        if ex.strip() == tournament.split('_')[0]:  # Check for exact match
+            add = False
+            break  # No need to continue checking once a match is found
+    if add:
+        filtered_tournaments.append(tournament)
+
+print("FILTERED TOURNAMENTS\n\n")
+print(filtered_tournaments)
+print('\n\n')
 
 x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
 y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
