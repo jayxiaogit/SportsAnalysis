@@ -125,7 +125,29 @@ export type Tournament = {
 
 export const columns: ColumnDef<Tournament>[] = [
   {
-    id: "select",
+    id: "include",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    id: "exclude",
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -204,7 +226,7 @@ export function DataTableDemo() {
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  console.log(rowSelection);
+  // console.log(rowSelection);
 
   const table = useReactTable({
     data,

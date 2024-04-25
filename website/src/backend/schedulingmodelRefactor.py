@@ -214,9 +214,22 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
 
     weeks = data_by_week.keys()
     tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
-    filtered_tournaments = []
+
+    print("TOURNAMENTS\n")
+    print(tournaments)
+    print("\n\n")
 
     # PLEASE ADD CODE TO FILTER THE TOURNAMENTS GIVEN THE EXCLUDED ARRAY
+    filtered_tournaments = []
+    
+    for tournament in tournaments:
+        add = True
+        for ex in excluded_array:
+            if ex.strip() == tournament.split('_')[0]:  # Check for exact match
+                add = False
+                break  # No need to continue checking once a match is found
+        if add:
+            filtered_tournaments.append(tournament)
 
     print("FILTERED TOURNAMENTS\n\n")
     print(filtered_tournaments)

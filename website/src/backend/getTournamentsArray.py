@@ -13,7 +13,7 @@ with open('pointsdata.csv', newline='') as csvfile:
             'id': i,
             'name': row[2],
             'week': row[0],
-            'level': row[1],
+            'type': row[1],
         })
 
 print(tournaments)
