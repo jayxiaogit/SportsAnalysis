@@ -239,7 +239,7 @@ for w in all_weeks:
 # PuLP model
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
-excluded = "Adelaide International 1, Adelaide International 2"
+excluded = "Adelaide International 1,Adelaide International 2,Roland-Garros"
 
 excluded_array = excluded.split(',')
 print("EXCLUDED\n")
@@ -266,6 +266,7 @@ for tournament in tournaments:
         filtered_tournaments.append(tournament)
 
 print("FILTERED TOURNAMENTS\n\n")
+filtered_tournament = []
 print(filtered_tournaments)
 print('\n\n')
 
@@ -275,12 +276,32 @@ tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournament
 # New variable to represent the end of a two-week tournament
 two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
 
+print("data_by_week")
+print(data_by_week)
+print("edvluded array")
+print(excluded_array)
+#exclude in data_by_week
+for week, data in data_by_week.items():
+    tournaments = data['tournament']
+    for i in excluded_array:
+        if i in tournaments:
+            index = data_by_week[week]['tournament'].index(i)
+            data_by_week[week]['tournament'].remove(i)
+            del data_by_week[week]['points'][index]
+            del data_by_week[week]['earnings'][index]
+            del data_by_week[week]['distance'][index]
 
+print("data_by_week")
+print(data_by_week)
+print("weeks")
+print(weeks)
 # Constraints
 weeks = list(weeks)
 for week_index, week in enumerate(weeks):
+    print("Week:", week)
+    print("Data by week:", data_by_week.get(week))
     #model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
-    model += lpSum(tournament_selected[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
+    model += lpSum(tournament_selected[f"{data_by_week[week]['tournament'][i]}"] for i in range(len(data_by_week[week]['points']))) <= 1
 
 # Ensure the player doesn't play for restInput consecutive weeks
 for i in range(len(weeks) - restInput + 1):
