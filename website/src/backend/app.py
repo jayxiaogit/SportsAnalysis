@@ -25,11 +25,14 @@ def results():
     earnings = request.args.get('earnings')
     points = request.args.get('points')
     excluded = request.args.get('excluded')
+    included = request.args.get('included')
 
     try:
 
+        print(included)
+
         # Call the print_results function with the received parameters and write to a file
-        result = print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded)
+        result = print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded, included)
 
         print(result)
 
