@@ -76,7 +76,7 @@ def distanceCalculator(lat1, lon1, lat2, lon2):
 def clean_word(word):
     return re.sub(r'[\d_]', '', word)
 
-def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, earningsInput, pointsInput, excluded):
+def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, earningsInput, pointsInput, excluded, included):
     result = ""
     # construct the API request URL
     endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={API_KEY}'
@@ -212,6 +212,11 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     print(excluded_array)
     print("\n\n")
 
+    included_array = included.split(',')
+    print("INCLUDED\n")
+    print(included_array)
+    print("\n\n")
+
     weeks = data_by_week.keys()
     tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{i}" for week in weeks for i in range(len(data_by_week[week]['points']))]
 
@@ -219,21 +224,22 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     print(tournaments)
     print("\n\n")
 
+    filtered_tournaments = tournaments
     # PLEASE ADD CODE TO FILTER THE TOURNAMENTS GIVEN THE EXCLUDED ARRAY
-    filtered_tournaments = []
+    # filtered_tournaments = []
     
-    for tournament in tournaments:
-        add = True
-        for ex in excluded_array:
-            if ex.strip() == tournament.split('_')[0]:  # Check for exact match
-                add = False
-                break  # No need to continue checking once a match is found
-        if add:
-            filtered_tournaments.append(tournament)
+    # for tournament in tournaments:
+    #     add = True
+    #     for ex in excluded_array:
+    #         if ex.strip() == tournament.split('_')[0]:  # Check for exact match
+    #             add = False
+    #             break  # No need to continue checking once a match is found
+    #     if add:
+    #         filtered_tournaments.append(tournament)
 
-    print("FILTERED TOURNAMENTS\n\n")
-    print(filtered_tournaments)
-    print('\n\n')
+    # print("FILTERED TOURNAMENTS\n\n")
+    # print(filtered_tournaments)
+    # print('\n\n')
 
     x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
     y = LpVariable.dicts("RestWeek", weeks, cat="Binary")

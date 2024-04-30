@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import * as React from "react"
 import {
   ChevronDownIcon,
-  DotsHorizontalIcon,
+//   DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
   ColumnDef,
@@ -30,8 +30,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -71,112 +71,72 @@ const GenerateSchedule = () => {
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
-    // const [includeSelected, setIncludeSelected] = useState(false); // State for including selected items
-    // const [excludeSelected, setExcludeSelected] = useState(false); // State for excluding selected items
+    const [included, setIncluded] = React.useState<string[]>([]);
+    const [excluded, setExcluded] = React.useState<string[]>([]);
 
     const columns: ColumnDef<Tournament>[] = [
         {
-            id: "include",
-            header: ({ table }) => (
-              <Checkbox
-                checked={
-                  table.getIsAllPageRowsSelected() ||
-                  (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-              />
-            ),
+            id: "included",
+            header: "Include",
             cell: ({ row }) => (
-              <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-              />
+                <Checkbox
+                    checked={included.includes(row.original.name)}
+                    onCheckedChange={(value) => {
+                        if (value) {
+                            handleInclude(row.original.name);
+                        } else {
+                            // If already included, remove from included array
+                            if (included.includes(row.original.name)) {
+                                setIncluded((prevIncluded) => prevIncluded.filter(name => name !== row.original.name));
+                            }
+                        }
+                    }}
+                    aria-label="Include"
+                />
             ),
-            enableSorting: false,
-            enableHiding: false,
-          },
-        //   {
-        //     id: "exclude",
-        //     header: ({ table }) => (
-        //       <Checkbox
-        //         checked={
-        //           table.getIsAllPageRowsSelected() ||
-        //           (table.getIsSomePageRowsSelected() && "indeterminate")
-        //         }
-        //         onCheckedChange={(value) => {
-        //           if (value) {
-        //             // Uncheck the include checkbox when exclude is checked
-        //             setExcludeSelected(true);
-        //           }
-        //           table.toggleAllPageRowsSelected(excludeSelected);
-        //         }}
-        //         aria-label="Select all"
-        //       />
-        //     ),
-        //     cell: ({ row }) => (
-        //       <Checkbox
-        //         checked={row.getIsSelected()}
-        //         onCheckedChange={(value) => {
-        //           if (value) {
-        //             // Uncheck the include checkbox when exclude is checked
-        //             setExcludeSelected(true);
-        //           }
-        //           row.toggleSelected(excludeSelected);
-        //         }}
-        //         aria-label="Select row"
-        //       />
-        //     ),
-        //     enableSorting: false,
-        //     enableHiding: false,
-        //   },
-        {
-          accessorKey: "name",
-          header: "Tournament",
-          cell: ({ row }) => (
-            <div className="capitalize">{row.getValue("name")}</div>
-          ),
         },
         {
-          accessorKey: "week",
-          header: "Week",
-          cell: ({ row }) => <div className="lowercase">{row.getValue("week")}</div>,
+            id: "excluded",
+            header: "Exclude",
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={excluded.includes(row.original.name)}
+                    onCheckedChange={(value) => {
+                        if (value) {
+                            handleExclude(row.original.name);
+                        } else {
+                            // If already included, remove from included array
+                            if (excluded.includes(row.original.name)) {
+                                setExcluded((prevExcluded) => prevExcluded.filter(name => name !== row.original.name));
+                            }
+                        }
+                    }}
+                    aria-label="Exclude"
+                />
+            ),
         },
         {
-          accessorKey: "type",
-          header: () => <div className="text-right">Type</div>,
-          cell: ({ row }) => {
-      
-            return <div className="text-right font-medium">{row.getValue('type')}</div>
-          },
+            accessorKey: "name",
+            header: "Tournament",
+            cell: ({ row }) => (
+                <div className="capitalize">{row.getValue("name")}</div>
+            ),
         },
         {
-          id: "actions",
-          enableHiding: false,
-          cell: () => {
-            //const type = row.original
-      
-            return (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <DotsHorizontalIcon className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    Yes tournament!
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>No tournament.</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )
-          },
+            accessorKey: "week",
+            header: "Week",
+            cell: ({ row }) => <div className="lowercase">{row.getValue("week")}</div>,
         },
-      ]
+        {
+            accessorKey: "type",
+            header: () => <div className="text-right">Type</div>,
+            cell: ({ row }) => (
+                <div className="text-right font-medium">{row.getValue('type')}</div>
+            ),
+        },
+
+    ];
+    
 
     // console.log(rowSelection);
 
@@ -200,21 +160,25 @@ const GenerateSchedule = () => {
     })
 
     const handleGenerateClick = () => {
+        if (isNaN(parseInt(ranking)) || isNaN(parseInt(zipcode)) || isNaN(parseInt(rest))) {
+            // Show alert dialog
+            alert("Please enter valid numbers for ranking, zipcode, or rest.");
+            return; // Exit function
+        }
         // Make the API call
         setIsGenerating(true);
 
         // Collect selected tournament names
         //const includedTournaments: string[] = [];
-        const excludedTournaments: string[] = [];
-        table.getRowModel().rows.forEach((row) => {
-        if (row.getIsSelected()) {
-            excludedTournaments.push(row.original.name);
-        }
-        });
-        
+        const includedTournaments = included;
+        const excludedTournaments = excluded;
+
         // Convert the array of selected tournament names into a comma-separated string
         excludedTournaments.join(',');
-        //includedTournaments.join(',');
+        includedTournaments.join(',');
+
+        console.log(excludedTournaments);
+        console.log(includedTournaments);
         // console.log(travel[0]);
         // console.log(earnings[0]);
         // console.log(points[0]);
@@ -233,9 +197,19 @@ const GenerateSchedule = () => {
         //console.log(trav)
 
         console.log(excludedTournaments);
-        const url = `http://localhost:6969/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}`;
+        const url = `http://localhost:6969/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
         xhr.open("GET", url, true);
         xhr.send();
+    };
+
+    const handleInclude = (name: string) => {
+        setIncluded((prevIncluded) => [...prevIncluded, name]);
+        setExcluded((prevExcluded) => prevExcluded.filter((excludedName) => excludedName !== name));
+    };
+
+    const handleExclude = (name: string) => {
+        setExcluded((prevExcluded) => [...prevExcluded, name]);
+        setIncluded((prevIncluded) => prevIncluded.filter((includedName) => includedName !== name));
     };
 
     return (
@@ -251,7 +225,7 @@ const GenerateSchedule = () => {
                 <Input type="rest" placeholder='How often do you want rest?' style={{marginBottom: '30px', width:'40%', marginLeft:'30%', textAlign:'center'}} value={rest} onChange={(event) => setRest(event.target.value)}/>
                 <div>
                   <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
-                    How important is travel?
+                    How far do you want to travel?
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
                     <div>0</div>
@@ -394,7 +368,7 @@ const GenerateSchedule = () => {
           {isGenerating && <p>Generating schedule...</p>}
           {schedule !== '' && !isGenerating && (
             <div>
-              <pre style={{ fontSize: '10px'}}>{schedule}</pre>
+              <pre style={{ fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>{schedule}</pre>
               <Link to="/generate-schedule"><Button variant={'secondary'} onClick={ () => setSchedule('')}>Regenerate</Button></Link>
             </div>
           )}
