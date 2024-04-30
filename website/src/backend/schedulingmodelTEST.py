@@ -270,7 +270,7 @@ filtered_tournament = []
 print(filtered_tournaments)
 print('\n\n')
 
-x = LpVariable.dicts("Tournament", tournaments, cat="Binary")
+x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
 y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
 tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
 # New variable to represent the end of a two-week tournament
