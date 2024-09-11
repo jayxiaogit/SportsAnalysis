@@ -9,3 +9,4 @@ app/backend/schedule_data.txt
 
 website/.env
 website/src/backend/.env
+website/src/backend/newenv/

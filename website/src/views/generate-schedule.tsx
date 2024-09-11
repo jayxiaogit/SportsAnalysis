@@ -202,6 +202,26 @@ const GenerateSchedule = () => {
         xhr.send();
     };
 
+    const handleSaveClick = () => {
+      const username = 'user1';
+      const schedule = 'schedule 2....';
+
+      const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              console.log("Saved!");
+          }
+      };
+
+      let url = `http://localhost:6969/save_schedule?user_name=${username}&schedule=${schedule}`;
+      xhr.open("POST", url, true);
+      xhr.send();
+
+      url = `http://localhost:6969/save_schedule?user_name=${username}`;
+      xhr.open("GET", url, true);
+      xhr.send();
+  };
+
     const handleInclude = (name: string) => {
         setIncluded((prevIncluded) => [...prevIncluded, name]);
         setExcluded((prevExcluded) => prevExcluded.filter((excludedName) => excludedName !== name));
@@ -370,6 +390,12 @@ const GenerateSchedule = () => {
             <div>
               <pre style={{ fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>{schedule}</pre>
               <Link to="/generate-schedule"><Button variant={'secondary'} onClick={ () => setSchedule('')}>Regenerate</Button></Link>
+            </div>
+          )}
+          {!isGenerating && (
+            <div>
+              <pre style={{ fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>{schedule}</pre>
+              <Button variant={'secondary'} onClick={ () => handleSaveClick()}>Save!</Button>
             </div>
           )}
         </div>
