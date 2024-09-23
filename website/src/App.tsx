@@ -8,7 +8,7 @@ import SignOutPage from "./views/signout"
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./views/home";
 import GenerateSchedule from "./views/generate-schedule";
-import NewSchedule from "./views/new-schedule";
+import ExistingSchedules from "./views/existing-schedules";
 
 function App() {
 
@@ -44,13 +44,13 @@ function App() {
       errorElement: <ErrorPage />,
     },
     {
-      path: "/generate-schedule",
-      element: <GenerateSchedule />,
+      path: "/existing-schedules",
+      element: <ExistingSchedules />,
       errorElement: <ErrorPage />,
     },
     {
-      path: "/schedule",
-      element: <NewSchedule />,
+      path: "/generate-schedule",
+      element: <GenerateSchedule />,
       errorElement: <ErrorPage />,
     },
     { path: "/sign-up/*", element: <SignUpPage /> },

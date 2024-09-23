@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // import { Link } from 'react-router-dom';
 import { Slider } from "../components/ui/slider";
 import Navbar from "../components/ui/navbar";
@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/table"
 
 import {data} from "../data/tournaments"
+import { useUser } from '@clerk/clerk-react';
 
 type Tournament = {
   id: number
@@ -62,7 +63,7 @@ const GenerateSchedule = () => {
     const [points, setPoints] = useState([5]);
     const [zipcode, setZipcode] = useState('');
     const [countrycode, setCountry] = useState(''); 
-    const [schedule, setSchedule] = useState(''); 
+    const [schedule, setSchedule] = useState<string[]>([]); 
     const [isGenerating, setIsGenerating] = useState(false);
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -73,6 +74,20 @@ const GenerateSchedule = () => {
     const [rowSelection, setRowSelection] = React.useState({})
     const [included, setIncluded] = React.useState<string[]>([]);
     const [excluded, setExcluded] = React.useState<string[]>([]);
+    const [expectedPoints, setExpectedPoints] = React.useState('');
+    const [expectedEarnings, setExpectedEarnings] = React.useState('');
+
+    const { user } = useUser();
+
+    useEffect(() => {
+      setRanking(localStorage.getItem('ranking') ?? '');
+      setZipcode(localStorage.getItem('zipcode') ?? '');
+      setCountry(localStorage.getItem('countrycode') ?? '');
+      setRest(localStorage.getItem('rest') ?? '');
+      setTravel([parseFloat(localStorage.getItem('travel') ?? '5.0')]);
+      setEarnings([parseFloat(localStorage.getItem('earnings') ?? '5.0')]);
+      setPoints([parseFloat(localStorage.getItem('points') ?? '5.0')]);
+    }, []);
 
     const columns: ColumnDef<Tournament>[] = [
         {
@@ -136,9 +151,6 @@ const GenerateSchedule = () => {
         },
 
     ];
-    
-
-    // console.log(rowSelection);
 
     const table = useReactTable({
         data,
@@ -167,6 +179,13 @@ const GenerateSchedule = () => {
         }
         // Make the API call
         setIsGenerating(true);
+        localStorage.setItem('ranking', ranking);
+        localStorage.setItem('zipcode', zipcode);
+        localStorage.setItem('countrycode', countrycode);
+        localStorage.setItem('rest', rest);
+        localStorage.setItem('travel', travel.toString());
+        localStorage.setItem('earnings', earnings.toString());
+        localStorage.setItem('points', points.toString());
 
         // Collect selected tournament names
         //const includedTournaments: string[] = [];
@@ -177,49 +196,49 @@ const GenerateSchedule = () => {
         excludedTournaments.join(',');
         includedTournaments.join(',');
 
-        console.log(excludedTournaments);
-        console.log(includedTournaments);
+        // console.log(excludedTournaments);
+        // console.log(includedTournaments);
         // console.log(travel[0]);
         // console.log(earnings[0]);
         // console.log(points[0]);
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                console.log("Schedule received!");
+                // console.log("Schedule received!");
                 const scheduleData = xhr.responseText;
-                setSchedule(scheduleData);
+                const scheduleArray = parseSchedule(scheduleData);
+                setSchedule(scheduleArray);
                 setIsGenerating(false);
                 // Do something with the schedule data
-                console.log(scheduleData);
             }
         };
         //const trav = travel[0];
         //console.log(trav)
 
-        console.log(excludedTournaments);
+        // console.log(excludedTournaments);
         const url = `http://localhost:6969/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
         xhr.open("GET", url, true);
         xhr.send();
     };
 
-    const handleSaveClick = () => {
-      const username = 'user1';
-      const schedule = 'schedule 2....';
+    const handleSaveClick = (schedule: string[]) => {
+      const userProfile = user?.id;
+      const sendScheduleString = schedule.join(',');
 
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
-              console.log("Saved!");
+            alert("Saved!");
           }
       };
 
-      let url = `http://localhost:6969/save_schedule?user_name=${username}&schedule=${schedule}`;
+      const url = `http://localhost:6969/save_schedule?user_name=${userProfile}&schedule=${sendScheduleString}`;
       xhr.open("POST", url, true);
       xhr.send();
 
-      url = `http://localhost:6969/save_schedule?user_name=${username}`;
-      xhr.open("GET", url, true);
-      xhr.send();
+      // url = `http://localhost:6969/save_schedule?user_name=${userProfile}`;
+      // xhr.open("GET", url, true);
+      // xhr.send();
   };
 
     const handleInclude = (name: string) => {
@@ -232,10 +251,24 @@ const GenerateSchedule = () => {
         setIncluded((prevIncluded) => prevIncluded.filter((includedName) => includedName !== name));
     };
 
+    const parseSchedule = (scheduleText: string) => {
+      const lines = scheduleText.split(',');
+      const data = lines.map(line => {
+        return line.split(':')[1];
+      });
+      const expectedP = parseFloat(data[data.length - 3]?.replace('[', '').replace(']', '')).toLocaleString(undefined, {maximumFractionDigits:2});
+      const expectedE = parseFloat(data[data.length - 2]?.replace('[', '').replace(']', '')).toFixed(2).toLocaleString();
+      console.log(expectedE);
+      setExpectedPoints(expectedP);
+      setExpectedEarnings("$" + expectedE);
+      const result = data.slice(0, -3);
+      return result;
+    };
+
     return (
         <div className="generate-schedule" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <Navbar />
-          {schedule == '' && !isGenerating && (
+          {schedule.length == 0 && !isGenerating && (
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>
               <div style={{ marginTop: '20px' }}>
@@ -249,7 +282,7 @@ const GenerateSchedule = () => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
                     <div>0</div>
-                    <Slider defaultValue={[5]} max={10} step={.1} style={{ flex: 1, marginLeft: '20px', marginRight: '20px', width: '500px'}} onValueChange={(value) => setTravel([Math.round(value[0])])}/>
+                    <Slider value={travel} max={10} step={.1} style={{ flex: 1, marginLeft: '20px', marginRight: '20px', width: '500px'}} onValueChange={(value) => setTravel([Math.round(value[0])])}/>
                     <div>10</div>
                   </div>
                   <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
@@ -257,7 +290,7 @@ const GenerateSchedule = () => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
                     <div>0</div>
-                    <Slider defaultValue={[5]} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setEarnings([Math.round(value[0])])}/>
+                    <Slider value={earnings} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setEarnings([Math.round(value[0])])}/>
                     <div>10</div>
                   </div>
                   <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
@@ -265,7 +298,7 @@ const GenerateSchedule = () => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
                     <div>0</div>
-                    <Slider defaultValue={[5]} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setPoints([Math.round(value[0])])}/>
+                    <Slider value={points} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setPoints([Math.round(value[0])])}/>
                     <div>10</div>
                   </div>
                 </div>
@@ -386,16 +419,40 @@ const GenerateSchedule = () => {
             </div>
           )}
           {isGenerating && <p>Generating schedule...</p>}
-          {schedule !== '' && !isGenerating && (
+          {schedule.length !== 0 && !isGenerating && (
             <div>
-              <pre style={{ fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>{schedule}</pre>
-              <Link to="/generate-schedule"><Button variant={'secondary'} onClick={ () => setSchedule('')}>Regenerate</Button></Link>
-            </div>
-          )}
-          {!isGenerating && (
-            <div>
-              <pre style={{ fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>{schedule}</pre>
-              <Button variant={'secondary'} onClick={ () => handleSaveClick()}>Save!</Button>
+              <Table>
+                <TableHeader>
+                    <TableHead key={1}>
+                      {"Week"}
+                    </TableHead>
+                    <TableHead key={2}>
+                      {"Tournament"}
+                    </TableHead>
+                </TableHeader>
+                <TableBody>
+                  {schedule.map((row, index) => (
+                      <TableRow
+                        key={index}
+                      >
+                        <TableCell key={index}>
+                          {index+1}
+                        </TableCell>
+                        <TableCell key={row}>
+                          {row}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+              <div>
+                <p style={{color: 'black', textAlign: 'center'}}>Expected points: {expectedPoints}</p>
+                <p>Expected earnings: {expectedEarnings}</p>
+                <Link to="/generate-schedule">
+                  <Button variant={'default'} onClick={() => setSchedule([])}>Regenerate</Button>
+                </Link>
+                <Button variant={'default'} onClick={() => handleSaveClick(schedule)}>Save Schedule</Button>
+              </div>
             </div>
           )}
         </div>
