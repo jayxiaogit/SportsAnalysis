@@ -31,14 +31,14 @@ migrate = Migrate(app, db)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(20), unique=True, nullable=False)
+    user_name = db.Column(db.String(256), unique=True, nullable=False)
 
     def __repr__(self):
         return f"User(id={self.id}, user_name='{self.user_name}')"
 
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(20), unique=False, nullable=False)
+    user_name = db.Column(db.String(256), unique=False, nullable=False)
     schedule = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
@@ -93,12 +93,10 @@ def save():
 
         # Format the schedules for the response
         schedules_list = [{'id': sched.id, 'schedule': sched.schedule} for sched in schedules]
-        print(schedules_list)
         return jsonify(schedules_list), 200
 
     elif request.method == 'POST':
         schedule = request.args.get('schedule')
-        print("POST")
         sched = Schedule(user_name=username, schedule=schedule)
         db.session.add(sched)
         db.session.commit()

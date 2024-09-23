@@ -76,7 +76,7 @@ def distanceCalculator(lat1, lon1, lat2, lon2):
 def clean_word(word):
     return re.sub(r'[\d_]', '', word)
 
-def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, earningsInput, pointsInput, excluded, included):
+def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded, included):
     result = ""
     # construct the API request URL
     endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={API_KEY}'
@@ -97,18 +97,18 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     playerLocationLat = float(playerLocationLat)
     playerLocationLong = float(playerLocationLong)
     # print("Zipcode: ", zipcode)
-    playerRanking = int(playerRanking)
+    playerRanking = int(rank)
     # print("Ranking: ", playerRanking)
-    restInput = int(restInput)
+    restInput = int(rest)
     # print("Rest: ", restInput)
 
     #opportunity to add more dials later
     #add dials!! then adjustment formula
-    dialpoints = int(pointsInput)  # Default value for dialpoints
+    dialpoints = int(points)  # Default value for dialpoints
     # print("Points dial: ", dialpoints)
-    dialearnings = int(earningsInput)  # Default value for dialearnings
+    dialearnings = int(earnings)  # Default value for dialearnings
     # print("Earnings dial: ", dialearnings)
-    dialdistance = int(travelInput)  # Default value for dialdistance
+    dialdistance = int(travel)  # Default value for dialdistance
     # print("Travel dial: ", dialdistance)
     rest_tournament = "Rest"
 
@@ -137,6 +137,8 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     dfpoints['Week'] = dfpoints['Week'].astype(int)
     dfpoints['Coord (lat)'] = dfpoints['Coord (lat)'].astype(float)
     dfpoints['Coord (long)'] = dfpoints['Coord (long)'].astype(float)
+
+    print("before removing tournaments\n")
 
     #removing tournaments that players won't make based on rank
     for i in reversed(range(len(dfpoints))):
@@ -168,6 +170,7 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     for i in range(len(dfprize)):
         distance.append(distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i]))
 
+    print("points and earnings\n")
     # Add expected points and earnings to arrays
     points = []
     earnings = []
@@ -204,6 +207,7 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
         if w not in data_by_week:
             data_by_week[w] = {'points': [0], 'earnings': [0], 'distance': [0], 'tournament': [rest_tournament]}
 
+    print("PuLP model\n")
     # PuLP model
     model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
@@ -291,7 +295,6 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     model.solve()
 
     # Print the results
-    result += "Selected Tournaments:\n"
     selected_tournaments = []
 
     for var in model.variables():
@@ -327,12 +330,12 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
         tournamentname = components[1].strip()
 
         if "Rest" in tournamentname:
-            result += components[0] + ":" + "Rest\n"
+            result += components[0] + ":" + "Rest,"
         else:
             listname = []
             listname = tournamentname.split("_")
             printname = " ".join(listname[1::])
-            tournament_component = components[0] + ":" + printname + "\n"
+            tournament_component = components[0] + ":" + printname + ","
             result += tournament_component
 
     total_expected_points = 0
@@ -353,10 +356,10 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
 
     result += "Total Expected Points: "
     result += str(total_expected_points)
-    result += "\n"
+    result += ","
     result += "Total Expected Earnings: "
     result += str(total_expected_earnings)
-    result += "\n"
+    result += ","
     return result
 
 
