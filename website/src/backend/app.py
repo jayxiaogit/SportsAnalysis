@@ -38,6 +38,7 @@ class User(db.Model):
 
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(256), nullable=True)
     user_name = db.Column(db.String(256), unique=False, nullable=False)
     schedule = db.Column(db.Text, nullable=False)
 
@@ -92,12 +93,14 @@ def save():
             return jsonify({"error": "No schedules found for this user"}), 404
 
         # Format the schedules for the response
-        schedules_list = [{'id': sched.id, 'schedule': sched.schedule} for sched in schedules]
+        schedules_list = [{'name': sched.name, 'schedule': sched.schedule} for sched in schedules]
         return jsonify(schedules_list), 200
 
     elif request.method == 'POST':
         schedule = request.args.get('schedule')
-        sched = Schedule(user_name=username, schedule=schedule)
+        name = request.args.get('name')
+        print(name)
+        sched = Schedule(user_name=username, schedule=schedule, name=name)
         db.session.add(sched)
         db.session.commit()
 

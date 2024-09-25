@@ -6,7 +6,7 @@ const Dashboard = () => {
 
     
     return (
-        <div className="dashboard" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
+        <div className="dashboard" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%', textAlign: 'center' }}>
         <Navbar />
         <div className="new-profile" style={{ width: '100%', padding: '20px' }}>
             <Link to={"/new-profile"}><Button variant={"ghost"}>Create new profile</Button></Link>

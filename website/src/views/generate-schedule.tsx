@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import * as React from "react"
 import {
   ChevronDownIcon,
+  // ExclamationTriangleIcon,
 //   DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
@@ -30,8 +31,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -46,6 +45,17 @@ import {
 
 import {data} from "../data/tournaments"
 import { useUser } from '@clerk/clerk-react';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogDescription, DialogTrigger } from '@radix-ui/react-dialog';
+// import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 
 type Tournament = {
   id: number
@@ -76,6 +86,10 @@ const GenerateSchedule = () => {
     const [excluded, setExcluded] = React.useState<string[]>([]);
     const [expectedPoints, setExpectedPoints] = React.useState('');
     const [expectedEarnings, setExpectedEarnings] = React.useState('');
+    const [scheduleName, setScheduleName] = React.useState('');
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [error, setError] = React.useState('');
+    const [success, setSuccess] = React.useState('');
 
     const { user } = useUser();
 
@@ -174,7 +188,7 @@ const GenerateSchedule = () => {
     const handleGenerateClick = () => {
         if (isNaN(parseInt(ranking)) || isNaN(parseInt(zipcode)) || isNaN(parseInt(rest))) {
             // Show alert dialog
-            alert("Please enter valid numbers for ranking, zipcode, or rest.");
+            setError("Please enter valid numbers for ranking, zipcode, or rest.");
             return; // Exit function
         }
         // Make the API call
@@ -188,7 +202,6 @@ const GenerateSchedule = () => {
         localStorage.setItem('points', points.toString());
 
         // Collect selected tournament names
-        //const includedTournaments: string[] = [];
         const includedTournaments = included;
         const excludedTournaments = excluded;
 
@@ -196,49 +209,41 @@ const GenerateSchedule = () => {
         excludedTournaments.join(',');
         includedTournaments.join(',');
 
-        // console.log(excludedTournaments);
-        // console.log(includedTournaments);
-        // console.log(travel[0]);
-        // console.log(earnings[0]);
-        // console.log(points[0]);
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                // console.log("Schedule received!");
                 const scheduleData = xhr.responseText;
                 const scheduleArray = parseSchedule(scheduleData);
                 setSchedule(scheduleArray);
                 setIsGenerating(false);
-                // Do something with the schedule data
+            } else {
+              setError("Failed to generate schedule. Please try again.");
+              setIsGenerating(false);
+              setSchedule([]);
             }
         };
-        //const trav = travel[0];
-        //console.log(trav)
 
-        // console.log(excludedTournaments);
         const url = `http://localhost:6969/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
         xhr.open("GET", url, true);
         xhr.send();
     };
 
-    const handleSaveClick = (schedule: string[]) => {
+    const handleSaveClick = (schedule: string[], name: string) => {
       const userProfile = user?.id;
       const sendScheduleString = schedule.join(',');
 
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            alert("Saved!");
+            setSuccess("Saved!");
+          } else {
+            setError('Error saving this schedule.');
           }
       };
 
-      const url = `http://localhost:6969/save_schedule?user_name=${userProfile}&schedule=${sendScheduleString}`;
+      const url = `http://localhost:6969/save_schedule?user_name=${userProfile}&schedule=${sendScheduleString}&name=${name}`;
       xhr.open("POST", url, true);
       xhr.send();
-
-      // url = `http://localhost:6969/save_schedule?user_name=${userProfile}`;
-      // xhr.open("GET", url, true);
-      // xhr.send();
   };
 
     const handleInclude = (name: string) => {
@@ -268,6 +273,30 @@ const GenerateSchedule = () => {
     return (
         <div className="generate-schedule" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <Navbar />
+          {error != '' && (
+            <Dialog open={error != ''} onOpenChange={() => setError('')}>
+              <DialogContent style={{ backgroundColor: 'f68c8c', color: 'c30909' }}>
+                <DialogHeader>
+                  <DialogTitle>Error!</DialogTitle>
+                </DialogHeader>
+                <DialogDescription>
+                  {error}
+                </DialogDescription>
+              </DialogContent>
+            </Dialog>
+          )}
+          {success != '' && (
+            <Dialog open={success != ''} onOpenChange={() => setSuccess('')}>
+            <DialogContent style={{ backgroundColor: '91ec89', color: '18c609' }}>
+              <DialogHeader>
+                <DialogTitle>Success!</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                {success}
+              </DialogDescription>
+            </DialogContent>
+          </Dialog>
+          )}
           {schedule.length == 0 && !isGenerating && (
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>
@@ -414,11 +443,15 @@ const GenerateSchedule = () => {
                     </div>
                   </div>
                 </div>
-                <Button variant="default" style={{ marginTop: '20px' }} onClick={handleGenerateClick}>Generate</Button>
+                <Button variant="default" style={{ marginTop: '20px', marginBottom: '20px' }} onClick={handleGenerateClick}>Generate</Button>
               </div>
             </div>
           )}
-          {isGenerating && <p>Generating schedule...</p>}
+          {isGenerating && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <p style={{ fontSize: '24px' }}>Generating schedule...</p>
+            </div>
+          )}
           {schedule.length !== 0 && !isGenerating && (
             <div>
               <Table>
@@ -451,7 +484,23 @@ const GenerateSchedule = () => {
                 <Link to="/generate-schedule">
                   <Button variant={'default'} onClick={() => setSchedule([])}>Regenerate</Button>
                 </Link>
-                <Button variant={'default'} onClick={() => handleSaveClick(schedule)}>Save Schedule</Button>
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogTrigger>
+                    <Button onClick={() => setIsOpen(true)}>Save Schedule</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>What do you want to name this schedule?</DialogTitle>
+                    </DialogHeader>
+                    <Input type="email" placeholder="Name" onChange={(e) => setScheduleName(e.target.value)}/>
+                    <DialogFooter>
+                      <Button type="submit" onClick={() => {
+                        handleSaveClick(schedule, scheduleName);
+                        setIsOpen(false);
+                      }}>Save</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           )}
