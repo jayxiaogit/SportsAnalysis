@@ -17,6 +17,27 @@ from processPremierMandatoryPoints import *
 from processInternational import *
 from processInternationalPoints import *
 
+from Earnings125 import *
+from Points125 import *
+from Earnings100 import *
+from Points100 import *
+from Earnings10 import *
+from Points10 import *
+from Earnings15 import *
+from Points15 import *
+from Earnings25 import *
+from Points25 import *
+from Earnings40 import *
+from Points40 import *
+from Earnings50 import *
+from Points50 import *
+from Earnings60 import *
+from Points60 import *
+from Earnings75 import *
+from Points75 import *
+from Earnings80 import *
+from Points80 import *
+
 #Jay Xiao and Kamila Wong
 #this is roughdraft number 2 of our code. This code has dials in use
 
@@ -38,18 +59,60 @@ def calculate_expected_earnings(level, ranking):
         expected_earnings = PremierEarnings(ranking)
     elif level == "I" or level == 250:
         expected_earnings = InternationalEarnings(ranking)
+    elif level == "C" or level == 125:
+        expected_earnings = Earnings125(ranking)
+    elif level == "100" or level == 100:
+        expected_earnings = Earnings100(ranking)
+    elif level == "10" or level == 10:
+        expected_earnings = Earnings10(ranking)
+    elif level == "15" or level == 15:
+        expected_earnings = Earnings15(ranking)
+    elif level == "25" or level == 25:
+        expected_earnings = Earnings25(ranking)
+    elif level == "40" or level == 40:
+        expected_earnings = Earnings40(ranking)
+    elif level == "50" or level == 50:
+        expected_earnings = Earnings50(ranking)
+    elif level == "60" or level == 60:
+        expected_earnings = Earnings60(ranking)
+    elif level == "75" or level == 75:
+        expected_earnings = Earnings75(ranking)
+    elif level == "80" or level == 80:
+        expected_earnings = Earnings80(ranking)
     return expected_earnings
 
 def calculate_expected_points(level, ranking):
     expected_points = 0
     if level == "GS":
         expected_points = GrandSlamPoints(ranking)
+    elif level == "UTR":
+        expected_points = 1
     elif level == "PM" or level == 1000:
         expected_points = PMPoints(ranking)
     elif level == "P" or level == 500:
         expected_points = PremierPoints(ranking)
     elif level == "I" or level == 250:
         expected_points = InternationalPoints(ranking)
+    elif level == "C" or level == 125:
+        expected_points = Points125(ranking)
+    elif level == "100" or level == 100:
+        expected_points = Points100(ranking)
+    elif level == "10" or level == 10:
+        expected_points = Points10(ranking)
+    elif level == "15" or level == 15:
+        expected_points = Points15(ranking)
+    elif level == "25" or level == 25:
+        expected_points = Points25(ranking)
+    elif level == "40" or level == 40:
+        expected_points = Points40(ranking)
+    elif level == "50" or level == 50:
+        expected_points = Points50(ranking)
+    elif level == "60" or level == 60:
+        expected_points = Points60(ranking)
+    elif level == "75" or level == 75:
+        expected_points = Points75(ranking)
+    elif level == "80" or level == 80:
+        expected_points = Points80(ranking)
     return expected_points
 
 #calculations before optimization code
