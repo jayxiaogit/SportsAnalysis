@@ -241,6 +241,9 @@ for w in all_weeks:
 # PuLP model
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
+"""
+Must work on exclude here
+"""
 excluded = "Adelaide International 1,Adelaide International 2,Roland-Garros"
 
 excluded_array = excluded.split(',')
