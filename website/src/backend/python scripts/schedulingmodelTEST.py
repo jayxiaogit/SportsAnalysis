@@ -12,7 +12,6 @@ from processPremierMandatoryPoints import *
 from processInternational import *
 from processInternationalPoints import *
 
-from EarningsUTR import *
 from Earnings125 import *
 from Points125 import *
 from Earnings100 import *
@@ -167,14 +166,14 @@ def calculate_expected_earnings(level, ranking):
         expected_earnings = Earnings75(ranking)
     elif level == "80" or level == 80:
         expected_earnings = Earnings80(ranking)
-    elif level == "UTR":
-        expected_earnings = EarningsUTR(ranking)
     return expected_earnings
 
 def calculate_expected_points(level, ranking):
     expected_points = 0
     if level == "GS":
         expected_points = GrandSlamPoints(ranking)
+    elif level == "UTR":
+        expected_points = 1
     elif level == "PM" or level == 1000:
         expected_points = PMPoints(ranking)
     elif level == "P" or level == 500:
@@ -201,8 +200,6 @@ def calculate_expected_points(level, ranking):
         expected_points = Points75(ranking)
     elif level == "80" or level == 80:
         expected_points = Points80(ranking)
-    elif level == "UTR":
-        expected_points = 1
     return expected_points
 
 # Add expected points and earnings to arrays
@@ -244,6 +241,9 @@ for w in all_weeks:
 # PuLP model
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
+"""
+Must work on exclude here
+"""
 excluded = "Adelaide International 1,Adelaide International 2,Roland-Garros"
 
 excluded_array = excluded.split(',')
