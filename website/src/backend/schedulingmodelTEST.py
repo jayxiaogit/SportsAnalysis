@@ -172,6 +172,8 @@ def calculate_expected_points(level, ranking):
     expected_points = 0
     if level == "GS":
         expected_points = GrandSlamPoints(ranking)
+    elif level == "UTR":
+        expected_points = 1
     elif level == "PM" or level == 1000:
         expected_points = PMPoints(ranking)
     elif level == "P" or level == 500:
