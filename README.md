@@ -1,5 +1,5 @@
 # SportsAnalysis
-This is Jay Xiao and Kamila Wong's Sports Analysis Project
+This is Jay Xiao , Kamila Wong, and Taylor Rohovit's Sports Analysis Project
 
 Focus: Optimizing the scheduling of WTA professional tennis players
 
