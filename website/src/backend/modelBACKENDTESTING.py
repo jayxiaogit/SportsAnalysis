@@ -32,6 +32,7 @@ from Earnings75 import *
 from Points75 import *
 from Earnings80 import *
 from Points80 import *
+from EarningsUTR import *
 
 
 
@@ -166,6 +167,8 @@ def calculate_expected_earnings(level, ranking):
         expected_earnings = Earnings75(ranking)
     elif level == "80" or level == 80:
         expected_earnings = Earnings80(ranking)
+    elif level == "1" or level == 1:
+        expected_earnings = EarningsUTR(ranking)
     return expected_earnings
 
 def calculate_expected_points(level, ranking):
