@@ -139,39 +139,41 @@ def distanceCalculator(lat1, lon1, lat2, lon2):
 def clean_word(word):
     return re.sub(r'[\d_]', '', word)
 
-def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, earningsInput, pointsInput, excluded, included):
+def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded, included):
     result = ""
     # construct the API request URL
     endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={API_KEY}'
 
     # send the request
-    response = requests.get(endpoint)
+    # response = requests.get(endpoint)
 
 
-    # handle the response
-    if response.status_code == 200:
-        data = response.json()
-        playerLocationLat = data['lat']
-        playerLocationLong = data['lon']
-    else:
-        return "error: " + response.reason + "\n"
+    # # handle the response
+    # if response.status_code == 200:
+    #     data = response.json()
+    #     playerLocationLat = data['lat']
+    #     playerLocationLong = data['lon']
+    # else:
+    #     return "error: " + response.reason + "\n"
 
-    #gathering information from player
-    playerLocationLat = float(playerLocationLat)
-    playerLocationLong = float(playerLocationLong)
+    # #gathering information from player
+    # playerLocationLat = float(playerLocationLat)
+    playerLocationLat = 39.33031
+    # playerLocationLong = float(playerLocationLong)
+    playerLocationLong = -76.60235
     # print("Zipcode: ", zipcode)
-    playerRanking = int(playerRanking)
+    playerRanking = int(rank)
     # print("Ranking: ", playerRanking)
-    restInput = int(restInput)
+    restInput = int(rest)
     # print("Rest: ", restInput)
 
     #opportunity to add more dials later
     #add dials!! then adjustment formula
-    dialpoints = int(pointsInput)  # Default value for dialpoints
+    dialpoints = int(points)  # Default value for dialpoints
     # print("Points dial: ", dialpoints)
-    dialearnings = int(earningsInput)  # Default value for dialearnings
+    dialearnings = int(earnings)  # Default value for dialearnings
     # print("Earnings dial: ", dialearnings)
-    dialdistance = int(travelInput)  # Default value for dialdistance
+    dialdistance = int(travel)  # Default value for dialdistance
     # print("Travel dial: ", dialdistance)
     rest_tournament = "Rest"
 
@@ -194,7 +196,7 @@ def print_results(zipcode, countrycode, playerRanking, restInput, travelInput, e
     # Read the CSV file into a pandas DataFrame
     dfprize = pd.read_csv(file_path2, names=columns, skiprows=1)
 
-    # cleaning up the dataframes
+    # cleaning up the dataframeså
     dfpoints.fillna(0, inplace=True)  # Replace NaN values with 0
     dfprize.fillna(0, inplace=True)  # Replace NaN values with 0
     dfpoints['Week'] = dfpoints['Week'].astype(int)

@@ -2,10 +2,11 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import matplotlib
-from schedulingmodelRefactor import print_results
+from modelWithFRONTEND import print_results
 import os
 from dotenv import load_dotenv
 from flask_migrate import Migrate
+import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -53,24 +54,34 @@ def hello():
 def results():
     print("schedule endpoint reached...")
     # Get query parameters from the request
-    params = {
-        'zipcode': request.args.get('zipcode'),
-        'countrycode': request.args.get('countrycode'),
-        'rank': request.args.get('rank'),
-        'rest': request.args.get('rest'),
-        'travel': request.args.get('travel'),
-        'earnings': request.args.get('earnings'),
-        'points': request.args.get('points'),
-        'excluded': request.args.get('excluded'),
-        'included': request.args.get('included')
-    }
-    print("past here")
+    # params = {
+    #     'zipcode': request.args.get('zipcode'),
+    #     'countrycode': request.args.get('countrycode'),
+    #     'rank': request.args.get('rank'),
+    #     'rest': request.args.get('rest'),
+    #     'travel': request.args.get('travel'),
+    #     'earnings': request.args.get('earnings'),
+    #     'points': request.args.get('points'),
+    #     'excluded': request.args.get('excluded'),
+    #     'included': request.args.get('included')
+    # }
+    zipcode = request.args.get('zipcode')
+    countrycode = request.args.get('countrycode')
+    rank = request.args.get('rank')
+    rest = request.args.get('rest')
+    travel = request.args.get('travel')
+    earnings = request.args.get('earnings')
+    points = request.args.get('points')
+    excluded = request.args.get('excluded')
+    included = request.args.get('included')
+    # print("past here")
 
     try:
         # print(params['included'])
-        print(params)
+        # print(params)
         # Call the print_results function with the received parameters and write to a file
-        result = print_results(**params)
+        # result = print_results(**params)
+        result = print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded, included)
         print(result)
         # Return the schedule data as JSON response
         print("Finished schedule generation")
@@ -79,21 +90,21 @@ def results():
         print(f"Error: {e}")
         return "ERROR", 500
 
-@app.route('/save_schedule', methods=['POST', 'GET'])
+@app.route('/save_schedule', methods=['POST', 'GET', 'DELETE', 'PUT'])
 def save():
     username = request.args.get('user_name')
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
     
     if request.method == 'GET':
-        if not username:
-                return jsonify({"error": "Username is required"}), 400
             
         # Query for schedules associated with the username
-        schedules = Schedule.query.filter_by(user_name=username).all()
+        schedules = Schedule.query.filter_by(user_name=username).filter(Schedule.deleted_at.is_(None)).all()
         if not schedules:
             return jsonify({"error": "No schedules found for this user"}), 404
 
         # Format the schedules for the response
-        schedules_list = [{'name': sched.name, 'schedule': sched.schedule} for sched in schedules]
+        schedules_list = [{'id': sched.id, 'name': sched.name, 'schedule': sched.schedule} for sched in schedules]
         return jsonify(schedules_list), 200
 
     elif request.method == 'POST':
@@ -103,6 +114,25 @@ def save():
         sched = Schedule(user_name=username, schedule=schedule, name=name)
         db.session.add(sched)
         db.session.commit()
+        return jsonify({"message": "Schedule saved successfully"}), 201
+
+    elif request.method == 'DELETE':
+        schedule_id = request.args.get('id')
+        if not schedule_id:
+            return jsonify({"error": "Schedule ID is required"}), 400
+        sched = Schedule.query.filter_by(id=schedule_id, user_name=username).first()
+        if not sched:
+            return jsonify({"error": "Schedule not found"}), 404
+        
+        # Update deleted_at field to current time
+        sched.deleted_at = datetime.utcnow()
+        db.session.commit()
+        return jsonify({"message": "Schedule marked as deleted"}), 200
+
+    elif request.method == 'PUT':
+        schedule = request.args.get('schedule')
+        name = request.args.get('name')
+        sched = Schedule(user_name=username, schedule=schedule, name=name)
 
     return "Success", 200
 
