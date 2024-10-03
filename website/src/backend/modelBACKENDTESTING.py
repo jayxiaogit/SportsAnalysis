@@ -1,6 +1,14 @@
 #Jay Xiao and Kamila Wong
 #this is roughdraft number 2 of our code. This code has dials in use
 
+import re
+import requests
+import os
+from dotenv import load_dotenv
+import pandas as pd
+from pulp import LpProblem, LpVariable, lpSum, LpMaximize
+import math
+
 #import expected returns models
 #from ERmodules import processGrandSlam, processGrandSlamPoints, processPremier, processPremierPoints, processPremierMandatory, processPremierMandatoryPoints, processInternational, processInternationalPoints
 from processGrandSlam import *
