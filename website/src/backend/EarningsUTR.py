@@ -43,6 +43,8 @@ def EarningsUTR(inputRanking):
             new_rank = 0
         elif col_1_value == "Q2":
             new_rank = 0
+        else:
+            new_rank = 0
     
         # Add the rank and new rank to the result array
         result_array.append([rank, new_rank])
