@@ -367,7 +367,6 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     model.solve()
 
     # Print the results
-    result += "Selected Tournaments:\n"
     selected_tournaments = []
 
     for var in model.variables():
@@ -403,12 +402,12 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
         tournamentname = components[1].strip()
 
         if "Rest" in tournamentname:
-            result += components[0] + ":" + "Rest\n"
+            result += components[0] + ":" + "Rest|"
         else:
             listname = []
             listname = tournamentname.split("_")
             printname = " ".join(listname[1::])
-            tournament_component = components[0] + ":" + printname + "\n"
+            tournament_component = components[0] + ":" + printname + "|"
             result += tournament_component
 
     total_expected_points = 0
@@ -427,25 +426,24 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
                 total_expected_points += expected_points
                 total_expected_earnings += expected_earnings
 
-    result += "\nTotal Expected Points: "
+    result += "Total Expected Points: "
     formatted_points = "{:,.2f}".format(round(total_expected_points[0], 2))
     result += formatted_points
-    result += "\n"
+    result += "|"
     result += "Total Expected Earnings: "
     formatted_earnings = "${:,.2f}".format(round(total_expected_earnings[0], 2))
     result += formatted_earnings
-    result += "\n"
 
-    lines = result.strip().split('\n')
+    # lines = result.strip().split('\n')
 
     # Calculate the midpoint index
-    midpoint = len(lines) // 2
+    # midpoint = len(lines) // 2
 
-    # Split into two halves
-    result1 = '\n'.join(lines[:midpoint])
-    result2 = '\n'.join(lines[midpoint:])
+    # # Split into two halves
+    # result1 = '\n'.join(lines[:midpoint])
+    # result2 = '\n'.join(lines[midpoint:])
 
-    return result1, result2
+    return result
 
 
 

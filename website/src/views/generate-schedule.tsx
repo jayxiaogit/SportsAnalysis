@@ -53,7 +53,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DialogDescription, DialogTrigger } from '@radix-ui/react-dialog';
+import { DialogTrigger } from '@radix-ui/react-dialog';
 // import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
@@ -88,8 +88,8 @@ const GenerateSchedule = () => {
     const [expectedEarnings, setExpectedEarnings] = React.useState('');
     const [scheduleName, setScheduleName] = React.useState('');
     const [isOpen, setIsOpen] = React.useState(false);
-    const [error, setError] = React.useState('');
-    const [success, setSuccess] = React.useState('');
+    // const [error, setError] = React.useState('');
+    // const [success, setSuccess] = React.useState('');
 
     const { user } = useUser();
 
@@ -102,6 +102,57 @@ const GenerateSchedule = () => {
       setEarnings([parseFloat(localStorage.getItem('earnings') ?? '5.0')]);
       setPoints([parseFloat(localStorage.getItem('points') ?? '5.0')]);
     }, []);
+
+    // const addUser = async (userId, name, email, ownerId) => {
+    //   try {
+    //     const response = await fetch(`http://localhost:6969/user?user_name=${userId}&name=${name}&email=${email}&owner_id=${ownerId}`, {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify({ user_name: userId, name: name, email: email, owner_id: ownerId }),
+    //     });
+    
+    //     if (!response.ok) throw new Error('Failed to add user');
+    //     console.log('User added successfully');
+    //   } catch (error) {
+    //     console.error('Error adding user:', error);
+    //   }
+    // };
+    
+    // const checkUserExistence = async (userId, name, email, ownerId) => {
+    //   try {
+    //     const response = await fetch(`http://localhost:6969/user?user_name=${userId}&name=${name}&email=${email}&owner_id=${ownerId}`, {
+    //       method: 'GET',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     });
+    //     const data = await response.json();
+    //     return data.exists; // Assuming the API returns { exists: true/false }
+    //   } catch (error) {
+    //     console.error('Error checking user existence:', error);
+    //     return false;
+    //   }
+    // };
+
+    // useEffect(() => {
+    //   const initializeUser = async () => {
+    //     if (user) {
+    //       const userId = user.id;
+    //       const name = user.fullName;
+    //       const email = user.primaryEmailAddress?.emailAddress;
+    
+    //       const userExists = await checkUserExistence(userId, name, email, '');
+    //       if (!userExists) {
+    //         await addUser(userId, name, email, '');
+    //       }
+    //     }
+    //   };
+    
+    //   initializeUser();
+    // }, [user]);
+    
 
     const columns: ColumnDef<Tournament>[] = [
         {
@@ -188,7 +239,7 @@ const GenerateSchedule = () => {
     const handleGenerateClick = () => {
         if (isNaN(parseInt(ranking)) || isNaN(parseInt(zipcode)) || isNaN(parseInt(rest))) {
             // Show alert dialog
-            setError("Please enter valid numbers for ranking, zipcode, or rest.");
+            alert("Please enter valid numbers for ranking, zipcode, or rest.");
             return; // Exit function
         }
         // Make the API call
@@ -211,17 +262,22 @@ const GenerateSchedule = () => {
 
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log(xhr.readyState)
+            if (xhr.readyState === 4) {
+              // console.log("good");
+              if (xhr.status === 200) {
                 const scheduleData = xhr.responseText;
+                console.log(scheduleData);
                 const scheduleArray = parseSchedule(scheduleData);
+                // console.log(scheduleArray);
                 setSchedule(scheduleArray);
                 setIsGenerating(false);
-            } else {
-              setError("Failed to generate schedule. Please try again.");
-              setIsGenerating(false);
-              setSchedule([]);
+              }
             }
+              
         };
+        // setIsGenerating(false);
+        // setSchedule([]);
 
         const url = `http://localhost:6969/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
         xhr.open("GET", url, true);
@@ -234,10 +290,8 @@ const GenerateSchedule = () => {
 
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            setSuccess("Saved!");
-          } else {
-            setError('Error saving this schedule.');
+          if (xhr.readyState === 4 && xhr.status === 201) {
+            alert("Saved!");
           }
       };
 
@@ -257,23 +311,27 @@ const GenerateSchedule = () => {
     };
 
     const parseSchedule = (scheduleText: string) => {
-      const lines = scheduleText.split(',');
+      console.log(scheduleText);
+      const lines = scheduleText.split('|');
       const data = lines.map(line => {
         return line.split(':')[1];
       });
-      const expectedP = parseFloat(data[data.length - 3]?.replace('[', '').replace(']', '')).toLocaleString(undefined, {maximumFractionDigits:2});
-      const expectedE = parseFloat(data[data.length - 2]?.replace('[', '').replace(']', '')).toFixed(2).toLocaleString();
+      const expectedP = data[data.length - 2];
+      console.log(expectedP);
+      const expectedE = data[data.length - 1];
       console.log(expectedE);
+
+      // console.log(expectedE);
       setExpectedPoints(expectedP);
-      setExpectedEarnings("$" + expectedE);
-      const result = data.slice(0, -3);
+      setExpectedEarnings(expectedE);
+      const result = data.slice(0, -2);
       return result;
     };
 
     return (
         <div className="generate-schedule" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <Navbar />
-          {error != '' && (
+          {/* {error != '' && (
             <Dialog open={error != ''} onOpenChange={() => setError('')}>
               <DialogContent style={{ backgroundColor: 'f68c8c', color: 'c30909' }}>
                 <DialogHeader>
@@ -296,7 +354,7 @@ const GenerateSchedule = () => {
               </DialogDescription>
             </DialogContent>
           </Dialog>
-          )}
+          )} */}
           {schedule.length == 0 && !isGenerating && (
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>
