@@ -1,4 +1,3 @@
-#Jay Xiao and Kamila Wong
 #this is roughdraft number 2 of our code. This code has dials in use
 
 import re
@@ -8,40 +7,6 @@ from dotenv import load_dotenv
 import pandas as pd
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize
 import math
-
-#import expected returns models
-#from ERmodules import processGrandSlam, processGrandSlamPoints, processPremier, processPremierPoints, processPremierMandatory, processPremierMandatoryPoints, processInternational, processInternationalPoints
-from processGrandSlam import *
-from processGrandSlamPoints import *
-from processPremier import *
-from processPremierPoints import *
-from processPremierMandatory import *
-from processPremierMandatoryPoints import *
-from processInternational import *
-from processInternationalPoints import *
-
-from Earnings125 import *
-from Points125 import *
-from Earnings100 import *
-from Points100 import *
-from Earnings10 import *
-from Points10 import *
-from Earnings15 import *
-from Points15 import *
-from Earnings25 import *
-from Points25 import *
-from Earnings40 import *
-from Points40 import *
-from Earnings50 import *
-from Points50 import *
-from Earnings60 import *
-from Points60 import *
-from Earnings75 import *
-from Points75 import *
-from Earnings80 import *
-from Points80 import *
-from EarningsUTR import * # I will continue to try to incorporate this, but it's not working at the moment
-
 
 
 #gathering information from player
@@ -148,69 +113,69 @@ for i in range(len(dfprize)):
 def calculate_expected_earnings(level, ranking):
     expected_earnings = 0
     if level == "GS":
-        expected_earnings = GrandSlamEarnings(ranking)
+        expected_earnings = 1000
     elif level == "PM" or level == 1000:
-        expected_earnings = PMEarnings(ranking)
+        expected_earnings = 800
     elif level == "P" or level == 500:
-        expected_earnings = PremierEarnings(ranking)
+        expected_earnings = 600
     elif level == "I" or level == 250:
-        expected_earnings = InternationalEarnings(ranking)
+        expected_earnings = 500
     elif level == "C" or level == 125:
-        expected_earnings = Earnings125(ranking)
+        expected_earnings = 250
     elif level == "100" or level == 100:
-        expected_earnings = Earnings100(ranking)
+        expected_earnings = 100
     elif level == "10" or level == 10:
-        expected_earnings = Earnings10(ranking)
+        expected_earnings = 50
     elif level == "15" or level == 15:
-        expected_earnings = Earnings15(ranking)
+        expected_earnings = 15
     elif level == "25" or level == 25:
-        expected_earnings = Earnings25(ranking)
+        expected_earnings = 25
     elif level == "40" or level == 40:
-        expected_earnings = Earnings40(ranking)
+        expected_earnings = 40
     elif level == "50" or level == 50:
-        expected_earnings = Earnings50(ranking)
+        expected_earnings = 50
     elif level == "60" or level == 60:
-        expected_earnings = Earnings60(ranking)
+        expected_earnings = 60
     elif level == "75" or level == 75:
-        expected_earnings = Earnings75(ranking)
+        expected_earnings = 75
     elif level == "80" or level == 80:
-        expected_earnings = Earnings80(ranking)
+        expected_earnings = 80
     elif level == "1" or level == 1:
-        expected_earnings = Earnings25(ranking) # replace this with earnings utr
+        expected_earnings = 1 # replace this with earnings utr
     return expected_earnings
 
 def calculate_expected_points(level, ranking):
     expected_points = 0
     if level == "GS":
-        expected_points = GrandSlamPoints(ranking)
+        expected_points = 1500
     elif level == "UTR":
         expected_points = 1
     elif level == "PM" or level == 1000:
-        expected_points = PMPoints(ranking)
+        expected_points = 1000
     elif level == "P" or level == 500:
-        expected_points = PremierPoints(ranking)
+        expected_points = 500
     elif level == "I" or level == 250:
-        expected_points = InternationalPoints(ranking)
+        expected_points = 250
     elif level == "C" or level == 125:
-        expected_points = Points125(ranking)
+        expected_points = 125
     elif level == "100" or level == 100:
-        expected_points = Points100(ranking)
+        expected_points = 100
     elif level == "10" or level == 10:
-        expected_points = Points10(ranking)
+        expected_points = 10
     elif level == "15" or level == 15:
-        expected_points = Points15(ranking)
+        expected_points = 15
     elif level == "25" or level == 25:
-        expected_points = Points25(ranking)
+        expected_points = 25
     elif level == "40" or level == 40:
-        expected_points = Points40(ranking)
+        expected_points = 40
     elif level == "50" or level == 50:
-        expected_points = Points50(ranking)
+        expected_points = 50
     elif level == "60" or level == 60:
-        expected_points = Points60(ranking)
+        expected_points = 60
     elif level == "75" or level == 75:
-        expected_points = Points75(ranking)
+        expected_points = 75
     elif level == "80" or level == 80:
-        expected_points = Points80(ranking)
+        expected_points = 80
     return expected_points
 
 # Add expected points and earnings to arrays
@@ -228,12 +193,6 @@ tournament = dfprize['Tournament'].values
 location = dfprize['Location'].values
 
 #testing to ensure proper data processing
-"""print(week)
-print(points)
-print(earnings)
-print(distance)
-print(tournament)
-"""
 for w, p, e, d, t in zip(week, points, earnings, distance, tournament):
     if w not in data_by_week:
         data_by_week[w] = {'points': [], 'earnings': [], 'distance': [], 'tournament': []}
@@ -255,9 +214,19 @@ model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 """
 Must work on exclude here
 """
-excluded = "Adelaide International 1,Adelaide International 2,Roland-Garros"
+excluded = "Adelaide International 1;Adelaide International 2;Roland-Garros"
 
-excluded_array = excluded.split(',')
+excluded_array = excluded.split(';')
+print("EXCLUDED\n")
+print(excluded_array)
+print("\n\n")
+
+"""
+Work on include!
+"""
+included = "New Taipei City;Bucharest"
+
+excluded_array = excluded.split(';')
 print("EXCLUDED\n")
 print(excluded_array)
 print("\n\n")
@@ -311,43 +280,6 @@ for i in range(len(weeks) - restInput + 1):
     consecutive_weeks = weeks[i:i + restInput]
     model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
     model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
-    
-
-'''
-rest_week_selected = LpVariable(f"RestWeekSelected_{i}", cat="Binary")  # New binary variable for rest week selection
-
-# Ensure the player doesn't play for restInput consecutive weeks
-for i in range(len(weeks) - restInput + 1):
-    consecutive_weeks = weeks[i:i + restInput]
-
-    # If the end of a two-week tournament falls in the consecutive weeks, add constraint to select rest week after that
-    for wk in consecutive_weeks:
-        model += lpSum(two_week_tournament_end[wk]) >= 1
-
-    # At least one of the consecutive weeks must be a rest week
-    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1
-
-    # Ensure that if rest_week_selected is 1, at least one of the consecutive weeks must be a rest week
-    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1 - len(consecutive_weeks) + rest_week_selected
-
-    # Ensure that if a rest week is selected, it is selected for all consecutive weeks
-    for wk in consecutive_weeks:
-        model += rest_week_selected >= y[wk]  # If rest_week_selected is 1, y[wk] must be 1
-
-
-
-    # Change the tournament name to 'rest_tournament' if the rest week is selected
-    for wk in consecutive_weeks:
-        for j in range(len(data_by_week[wk]['points'])):
-            model += tournament_selected[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] == rest_week_selected
-
-
-# Add constraints to ensure that rest weeks are not selected if they belong to a two-week tournament
-for wk in weeks:
-    two_week_tournament_name = f"{data_by_week[wk]['tournament'][0]}_{wk}_0"  # Assuming the first tournament in the week is a two-week tournament
-    model += two_week_tournament_end[wk] >= x[two_week_tournament_name]
-    model += two_week_tournament_end[wk] >= rest_week_selected
-'''
 
 
 # Create a dictionary to store the selected tournaments by name
@@ -410,6 +342,7 @@ for i in range(1, max_week + 1):
 
 # Sort the selected tournaments by week again (after adding "Rest" entries)
 selected_tournaments.sort(key=lambda x: x[0])
+print("selected", selected_tournaments)
 
 # Print the sorted results
 for tournament_info in selected_tournaments:
@@ -445,8 +378,3 @@ for var in model.variables():
 # Print total expected points and earnings
 print("Total Expected Points:", total_expected_points)
 print("Total Expected Earnings:", total_expected_earnings)
-
-
-
-
-
