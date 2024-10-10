@@ -8,6 +8,9 @@ const Dashboard = () => {
     return (
         <div className="dashboard" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%', textAlign: 'center' }}>
         <Navbar />
+        <div className="create-profiles" style={{ width: '100%', padding: '20px' }}>
+            <Link to={"/create-profile"}><Button variant={"ghost"}>Create profiles</Button></Link>
+        </div>
         <div className="existing-profiles" style={{ width: '100%', padding: '20px' }}>
             <Link to={"/existing-profiles"}><Button variant={"ghost"}>Manage profiles</Button></Link>
         </div>

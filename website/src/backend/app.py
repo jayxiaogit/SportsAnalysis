@@ -86,6 +86,7 @@ def results():
     
 @app.route('/user-profiles', methods=["GET", "POST", "PUT", "DELETE"])
 def userProfiles():
+    id = request.args.get('id')
     name = request.args.get('name')
     email = request.args.get('email')
     is_owner = request.args.get('is_owner')
@@ -112,7 +113,7 @@ def userProfiles():
         try:
             db.session.add(user)
             db.session.commit()
-            return jsonify({"message": "User profile saved successfully"}), 201
+            return jsonify({"message": "Successfully added profile"}), 201
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
@@ -121,7 +122,7 @@ def userProfiles():
         if not name or not email:
             return jsonify({"error": "All fields are required"}), 400
         
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(id=id).first()
         if not user:
             return jsonify({"error": "User profile not found"}), 404
                     
@@ -138,7 +139,7 @@ def userProfiles():
             return jsonify({"error": str(e)}), 500
         
     elif request.method == 'DELETE':
-        userProfile = User.query.filter_by(owner_id=owner_id, email=email).first()
+        userProfile = User.query.filter_by(id=id).first()
         if not userProfile:
             return jsonify({"error": "User Profile not found"}), 404
         
@@ -260,7 +261,7 @@ def save():
 
     elif request.method == 'DELETE':
         schedule_id = int(request.args.get('id'))
-        print(schedule_id)
+        # print(schedule_id)
         if not schedule_id:
             return jsonify({"error": "Schedule ID and player username are required"}), 400
         

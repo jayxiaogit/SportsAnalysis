@@ -9,7 +9,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./views/home";
 import GenerateSchedule from "./views/generate-schedule";
 import ExistingSchedules from "./views/existing-schedules";
-// import CreateProfile from "./views/create-profile";
+import CreateProfile from "./views/create-profile";
 import ExistingProfiles from "./views/existing-profiles";
 
 function App() {
@@ -38,6 +38,11 @@ function App() {
     {
       path: "/new-profile",
       element: <Dashboard />,
+      errorElement: <ErrorPage />,
+    },
+    {
+      path: "/create-profile",
+      element: <CreateProfile />,
       errorElement: <ErrorPage />,
     },
     {
