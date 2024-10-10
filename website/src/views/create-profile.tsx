@@ -47,9 +47,7 @@ const CreateProfile = () => {
                   alert("Successfuly added profile!");
                   setName("");
                   setEmail("");
-                  console.log(name);
-                  console.log(email);
-                  alert("YES");
+                  window.location.reload();
               } 
           };
       

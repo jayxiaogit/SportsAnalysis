@@ -113,7 +113,7 @@ def userProfiles():
         try:
             db.session.add(user)
             db.session.commit()
-            return jsonify({"message": "Successfully added profile"}), 201
+            return jsonify({"message": "Successfully added profile"}), 200
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
@@ -133,7 +133,7 @@ def userProfiles():
 
         try:
             db.session.commit()
-            return jsonify({"message": "User profile saved successfully"}), 201
+            return jsonify({"message": "User profile saved successfully"}), 200
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
@@ -185,7 +185,7 @@ def user():
         try:
             db.session.add(user)
             db.session.commit()
-            return jsonify({"message": "User saved successfully"}), 201
+            return jsonify({"message": "User saved successfully"}), 200
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
@@ -209,7 +209,7 @@ def user():
 
         try:
             db.session.commit()
-            return jsonify({"message": "User saved successfully"}), 201
+            return jsonify({"message": "User saved successfully"}), 200
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
@@ -257,7 +257,7 @@ def save():
         )
         db.session.add(sched)
         db.session.commit()
-        return jsonify({"message": "Schedule saved successfully"}), 201
+        return jsonify({"message": "Schedule saved successfully"}), 200
 
     elif request.method == 'DELETE':
         schedule_id = int(request.args.get('id'))

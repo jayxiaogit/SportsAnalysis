@@ -47,9 +47,10 @@ const Navbar = () => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            window.location.reload();
+            // window.location.reload();
+            setUserOwner(newOwnerStatus);
           } 
-          console.log(xhr.response);
+        //   console.log(xhr.response);
         };
     
         const username = user?.id;

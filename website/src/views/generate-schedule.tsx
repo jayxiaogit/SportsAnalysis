@@ -55,6 +55,14 @@ import {
 } from "@/components/ui/dialog";
 import { DialogTrigger } from '@radix-ui/react-dialog';
 // import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+ 
 
 
 type Tournament = {
@@ -102,56 +110,6 @@ const GenerateSchedule = () => {
       setEarnings([parseFloat(localStorage.getItem('earnings') ?? '5.0')]);
       setPoints([parseFloat(localStorage.getItem('points') ?? '5.0')]);
     }, []);
-
-    // const addUser = async (userId, name, email, ownerId) => {
-    //   try {
-    //     const response = await fetch(`http://localhost:6969/user?user_name=${userId}&name=${name}&email=${email}&owner_id=${ownerId}`, {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({ user_name: userId, name: name, email: email, owner_id: ownerId }),
-    //     });
-    
-    //     if (!response.ok) throw new Error('Failed to add user');
-    //     console.log('User added successfully');
-    //   } catch (error) {
-    //     console.error('Error adding user:', error);
-    //   }
-    // };
-    
-    // const checkUserExistence = async (userId, name, email, ownerId) => {
-    //   try {
-    //     const response = await fetch(`http://localhost:6969/user?user_name=${userId}&name=${name}&email=${email}&owner_id=${ownerId}`, {
-    //       method: 'GET',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //     });
-    //     const data = await response.json();
-    //     return data.exists; // Assuming the API returns { exists: true/false }
-    //   } catch (error) {
-    //     console.error('Error checking user existence:', error);
-    //     return false;
-    //   }
-    // };
-
-    // useEffect(() => {
-    //   const initializeUser = async () => {
-    //     if (user) {
-    //       const userId = user.id;
-    //       const name = user.fullName;
-    //       const email = user.primaryEmailAddress?.emailAddress;
-    
-    //       const userExists = await checkUserExistence(userId, name, email, '');
-    //       if (!userExists) {
-    //         await addUser(userId, name, email, '');
-    //       }
-    //     }
-    //   };
-    
-    //   initializeUser();
-    // }, [user]);
     
 
     const columns: ColumnDef<Tournament>[] = [
@@ -334,7 +292,7 @@ const GenerateSchedule = () => {
           {/* {error != '' && (
             <Dialog open={error != ''} onOpenChange={() => setError('')}>
               <DialogContent style={{ backgroundColor: 'f68c8c', color: 'c30909' }}>
-                <DialogHeader>
+                <DialogHeader>å
                   <DialogTitle>Error!</DialogTitle>
                 </DialogHeader>
                 <DialogDescription>
@@ -358,6 +316,18 @@ const GenerateSchedule = () => {
           {schedule.length == 0 && !isGenerating && (
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>
+              <div style={{ marginTop: '20px', marginBottom: '10px', width: '40%', marginLeft: '30%' }}>
+                <Select>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div style={{ marginTop: '20px' }}>
                 <Input type="ranking" placeholder="Ranking" style={{ marginBottom: '10px', width: '40%', marginLeft: '30%', textAlign: 'center', }} value={ranking} onChange={(event) => setRanking(event.target.value)}/>
                 <Input type="zipcode" placeholder="Zipcode" style={{ marginBottom: '10px', width: '40%', marginLeft: '30%', textAlign:'center' }} value={zipcode} onChange={(event) => setZipcode(event.target.value)}/>

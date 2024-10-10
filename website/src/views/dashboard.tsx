@@ -15,7 +15,7 @@ const Dashboard = () => {
             <Link to={"/existing-profiles"}><Button variant={"ghost"}>Manage profiles</Button></Link>
         </div>
         <div className="existing-schedules" style={{ width: '100%', padding: '20px' }}>
-            <Link to={"/existing-schedules"}><Button variant={"ghost"}>View existing schedules</Button></Link>
+            <Link to={"/existing-schedules"}><Button variant={"ghost"}>Manage schedules</Button></Link>
         </div>
         <div className="generate-schedule" style={{ width: '100%', padding: '20px' }}>
             <Link to={"/generate-schedule"}><Button>Generate new schedule</Button></Link>
