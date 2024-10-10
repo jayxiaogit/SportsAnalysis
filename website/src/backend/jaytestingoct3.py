@@ -226,9 +226,9 @@ Work on include!
 """
 included = "New Taipei City;Bucharest"
 
-excluded_array = excluded.split(';')
-print("EXCLUDED\n")
-print(excluded_array)
+included_array = included.split(';')
+print("INCLUDED\n")
+print(included_array)
 print("\n\n")
 
 weeks = data_by_week.keys()
@@ -303,11 +303,23 @@ model += lpSum(
     dialpoints * data_by_week[wk]['points'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
     dialearnings * data_by_week[wk]['earnings'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
     dialdistance * data_by_week[wk]['distance'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
-    #dialpoints * data_by_week[wk]['points'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
-    #dialearnings * data_by_week[wk]['earnings'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
-    #dialdistance * data_by_week[wk]['distance'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
     for wk in weeks for i in range(len(data_by_week[wk]['points'])))
 
+print("Hi?")
+"""Here is where the include code goes"""
+for week, data in data_by_week.items():
+    print("hi?")
+    tournaments = data['tournament']
+    for i in included_array:
+        print(i)
+        if i in tournaments:
+            print("HELLO LOOK RIGHT HERE", i)
+            index = data_by_week[week]['tournament'].index(i)
+            tournament_name = data_by_week[week]["tournament"][index]
+            wk = week
+            var_name = f"{tournament_name}_{wk}_{index}" 
+            # Ensure the binary variable for this tournament is set to 1 (i.e., tournament is selected)
+            model += x[var_name] == 1, f"Force_Selection_{tournament_name}_{wk}_{index}"
 
 # Solve the optimization problem
 model.solve()
