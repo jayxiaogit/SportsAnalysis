@@ -305,15 +305,11 @@ model += lpSum(
     dialdistance * data_by_week[wk]['distance'][i] * x[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
     for wk in weeks for i in range(len(data_by_week[wk]['points'])))
 
-print("Hi?")
 """Here is where the include code goes"""
 for week, data in data_by_week.items():
-    print("hi?")
     tournaments = data['tournament']
     for i in included_array:
-        print(i)
         if i in tournaments:
-            print("HELLO LOOK RIGHT HERE", i)
             index = data_by_week[week]['tournament'].index(i)
             tournament_name = data_by_week[week]["tournament"][index]
             wk = week

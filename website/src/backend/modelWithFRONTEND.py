@@ -362,6 +362,18 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
         #dialearnings * data_by_week[wk]['earnings'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"] +
         #dialdistance * data_by_week[wk]['distance'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
         for wk in weeks for i in range(len(data_by_week[wk]['points'])))
+    
+    """Here is where the include code goes"""
+    for week, data in data_by_week.items():
+        tournaments = data['tournament']
+        for i in included_array:
+            if i in tournaments:
+                index = data_by_week[week]['tournament'].index(i)
+                tournament_name = data_by_week[week]["tournament"][index]
+                wk = week
+                var_name = f"{tournament_name}_{wk}_{index}" 
+                # Ensure the binary variable for this tournament is set to 1 (i.e., tournament is selected)
+                model += x[var_name] == 1, f"Force_Selection_{tournament_name}_{wk}_{index}"
 
     # Solve the optimization problem
     model.solve()
