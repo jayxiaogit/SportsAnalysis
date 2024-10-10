@@ -285,7 +285,7 @@ const GenerateSchedule = () => {
     };
 
     const handleSaveClick = (schedule: string[], name: string) => {
-      const userProfile = user?.id;
+      const userProfile = user?.primaryEmailAddress?.emailAddress;
       const sendScheduleString = schedule.join(',');
 
       const xhr = new XMLHttpRequest();

@@ -31,18 +31,19 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     owner_id = db.Column(db.String(256), nullable=True)
-#     name = db.Column(db.String(256), nullable=False)
-#     user_name = db.Column(db.String(256), unique=True, nullable=False)
-#     email = db.Column(db.String(256), unique=True, nullable=False)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-#     deleted_at = db.Column(db.DateTime, nullable=True)
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    is_owner = db.Column(db.Boolean, default=False)
+    owner_id = db.Column(db.String(256), nullable=True)
+    name = db.Column(db.String(256), nullable=False)
+    user_name = db.Column(db.String(256), nullable=True)
+    email = db.Column(db.String(256), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
 
-#     def __repr__(self):
-#         return f"User(id={self.id}, user_name='{self.user_name}')"
+    def __repr__(self):
+        return f"User(id={self.id}, user_name='{self.user_name}')"
 
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -83,49 +84,135 @@ def results():
         print(f"Error: {e}")
         return "ERROR", 500
     
-# @app.route('/user', methods=["GET", "POST"])
-# def user():
-#     name = request.args.get('name')
-#     username = request.args.get('user_name')
-#     email = request.args.get('email')
-#     owner_id = request.args.get('owner_id')
+@app.route('/user-profiles', methods=["GET", "POST", "PUT", "DELETE"])
+def userProfiles():
+    name = request.args.get('name')
+    email = request.args.get('email')
+    is_owner = request.args.get('is_owner')
+    owner_id = request.args.get('owner_id')
 
-#     is_owner = owner_id == '0'
+    if request.method == 'GET':
+        users = User.query.filter_by(owner_id=owner_id, deleted_at=None).all()
+        if not users:
+            return jsonify({"error": "User profile not found"}), 404
+                
+        users_list = [{'id': user.id, 'name': user.name, 'email': user.email, 'owner': user.is_owner} for user in users]
 
-#     if request.method == 'GET':
-#         if not username:
-#             return jsonify({"error": "Username is required"}), 400
-#         if is_owner:
-#             users = User.query.filter_by(owner_id=username).all()
-#             if not users:
-#                 return jsonify({"error": "No users found for this owner"}), 404
-            
-#             return jsonify({"data": [user.user_name for user in users]}), 200
-#         else:
-#             user = User.query.filter_by(user_name=username).first()
-#             if not user:
-#                 return jsonify({"error": "User not found"}), 404
-#             return jsonify({"data": user}), 200
-
-#     elif request.method == 'POST':
-#         if not username or not name or not email or owner_id is None:
-#             return jsonify({"error": "All fields are required"}), 400
+        return jsonify({'data': users_list}), 200
+    
+    if request.method == 'POST':
+        user = User(
+            name=name,
+            email=email,
+            is_owner=(is_owner.lower() == 'true'),
+            owner_id=owner_id,
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({"message": "User profile saved successfully"}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
         
-#         user = User(
-#             user_name=username,
-#             name=name,
-#             email=email,
-#             owner_id=owner_id if owner_id else None,
-#             created_at=datetime.now(datetime.timezone.utc),
-#             updated_at=datetime.now(datetime.timezone.utc)
-#         )
-#         try:
-#             db.session.add(user)
-#             db.session.commit()
-#             return jsonify({"message": "User saved successfully"}), 201
-#         except Exception as e:
-#             db.session.rollback()
-#             return jsonify({"error": str(e)}), 500
+    elif request.method == 'PUT':
+        if not name or not email:
+            return jsonify({"error": "All fields are required"}), 400
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({"error": "User profile not found"}), 404
+                    
+        user.name = name
+        user.email = email
+        user.owner_id = owner_id
+        user.updated_at = datetime.now()
+
+        try:
+            db.session.commit()
+            return jsonify({"message": "User profile saved successfully"}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+        
+    elif request.method == 'DELETE':
+        userProfile = User.query.filter_by(owner_id=owner_id, email=email).first()
+        if not userProfile:
+            return jsonify({"error": "User Profile not found"}), 404
+        
+        userProfile.deleted_at = datetime.now()
+        db.session.commit()
+        return jsonify({"message": "Schedule marked as deleted"}), 200
+
+    
+@app.route('/user', methods=["GET", "POST", "PUT"])
+def user():
+    name = request.args.get('name')
+    username = request.args.get('user_name')
+    email = request.args.get('email')
+    is_owner = request.args.get('is_owner')
+    owner_id = request.args.get('owner_id')
+
+    if request.method == 'GET':
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+        
+        user = User.query.filter_by(email=email, deleted_at=None).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        userJson = {'id': user.id, 'username': user.user_name, 'name': user.name, 'email': user.email, 'owner': user.is_owner}
+
+        return jsonify({'data': userJson}), 200
+
+
+    elif request.method == 'POST':
+        if not name or not email:
+            return jsonify({"error": "All fields are required"}), 400
+        
+        user = User(
+            user_name=username,
+            name=name,
+            email=email,
+            is_owner=(is_owner.lower() == 'true'),
+            owner_id=owner_id,
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({"message": "User saved successfully"}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+        
+    elif request.method == 'PUT':
+        if not name or not email:
+            return jsonify({"error": "All fields are required"}), 400
+        
+        user = User.query.filter_by(user_name=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        own = is_owner.lower() == 'true'
+            
+        user.user_name = username
+        user.name = name
+        user.email = email
+        user.is_owner = own
+        user.owner_id = owner_id
+        user.updated_at = datetime.now()
+
+        try:
+            db.session.commit()
+            return jsonify({"message": "User saved successfully"}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/save_schedule', methods=['POST', 'GET', 'DELETE', 'PUT'])
 def save():
