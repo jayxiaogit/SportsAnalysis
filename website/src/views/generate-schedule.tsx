@@ -72,6 +72,13 @@ type Tournament = {
   type: string
 }
 
+type Profile = {
+  id: number,
+  name: string,
+  email: string,
+  owner: boolean,
+ };
+
 const GenerateSchedule = () => {
 
     const [ranking, setRanking] = useState('');
@@ -96,10 +103,14 @@ const GenerateSchedule = () => {
     const [expectedEarnings, setExpectedEarnings] = React.useState('');
     const [scheduleName, setScheduleName] = React.useState('');
     const [isOpen, setIsOpen] = React.useState(false);
+    const [profiles, setProfiles] = useState<Profile[]>([]);
+    const [profile, setProfile] = React.useState("");
     // const [error, setError] = React.useState('');
     // const [success, setSuccess] = React.useState('');
 
     const { user } = useUser();
+
+    const thisUser = user?.primaryEmailAddress?.emailAddress ?  user?.primaryEmailAddress?.emailAddress : 'Myself';
 
     useEffect(() => {
       setRanking(localStorage.getItem('ranking') ?? '');
@@ -242,8 +253,7 @@ const GenerateSchedule = () => {
         xhr.send();
     };
 
-    const handleSaveClick = (schedule: string[], name: string) => {
-      const userProfile = user?.primaryEmailAddress?.emailAddress;
+    const handleSaveClick = (user: string, schedule: string[], name: string) => {
       const sendScheduleString = schedule.join(',');
 
       const xhr = new XMLHttpRequest();
@@ -253,7 +263,7 @@ const GenerateSchedule = () => {
           }
       };
 
-      const url = `http://localhost:6969/save_schedule?user_name=${userProfile}&schedule=${sendScheduleString}&name=${name}`;
+      const url = `http://localhost:6969/save_schedule?email=${user}&schedule=${sendScheduleString}&name=${name}`;
       xhr.open("POST", url, true);
       xhr.send();
   };
@@ -286,6 +296,39 @@ const GenerateSchedule = () => {
       return result;
     };
 
+    const getProfiles = () => {
+      // console.log(userEmail);
+      const userEmail = user?.primaryEmailAddress?.emailAddress;
+      const xhr = new XMLHttpRequest();
+      setProfiles([]);
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              const userData = JSON.parse(xhr.responseText);
+              // console.log(userData);
+              setProfiles(userData.data);
+          }
+          // console.log(xhr.response);
+      };
+
+      const url = `http://localhost:6969/user-profiles?owner_id=${userEmail}&is_owner=true`;
+      xhr.open("GET", url, true);
+      xhr.send();
+  }
+
+    const handleSelectChange = (value) => {
+      if (value === thisUser) {
+        setProfile(thisUser);
+      } else {
+        const selectedProfile = profiles.find(profile => profile.name === value);
+        setProfile(selectedProfile ? selectedProfile.email : thisUser);
+      }
+    };
+
+    useEffect(() => {
+        getProfiles();
+        // console.log(profiles);
+    }, []);
+
     return (
         <div className="generate-schedule" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <Navbar />
@@ -317,14 +360,17 @@ const GenerateSchedule = () => {
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>
               <div style={{ marginTop: '20px', marginBottom: '10px', width: '40%', marginLeft: '30%' }}>
-                <Select>
+                <Select onValueChange={handleSelectChange}>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Theme" />
+                    <SelectValue placeholder="Profile" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
+                    <SelectItem key={thisUser} value={thisUser}>Myself</SelectItem>
+                    {profiles.map(profile => (
+                      <SelectItem key={profile.email} value={profile.name}>
+                        {profile.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -523,7 +569,8 @@ const GenerateSchedule = () => {
                     <Input type="email" placeholder="Name" onChange={(e) => setScheduleName(e.target.value)}/>
                     <DialogFooter>
                       <Button type="submit" onClick={() => {
-                        handleSaveClick(schedule, scheduleName);
+                        // console.log(profile);
+                        handleSaveClick(profile, schedule, scheduleName);
                         setIsOpen(false);
                       }}>Save</Button>
                     </DialogFooter>

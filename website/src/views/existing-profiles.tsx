@@ -7,7 +7,7 @@ import {
   } from "@tanstack/react-table";
 import Navbar from '@/components/ui/navbar';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+// import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,6 @@ import { Input } from '@/components/ui/input';
 type Profile = {
  id: number,
  name: string,
- username: string,
  email: string,
  owner: boolean,
 };
@@ -133,6 +132,7 @@ const ExistingProfiles = () => {
         xhr.open("GET", url, true);
         xhr.send();
     }
+
 
     useEffect(() => {
         getProfiles();

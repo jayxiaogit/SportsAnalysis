@@ -16,13 +16,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-
+// import {
+//   Accordion,
+//   AccordionContent,
+//   AccordionItem,
+//   AccordionTrigger,
+// } from "@/components/ui/accordion"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@radix-ui/react-select';
 
 
 type Schedule = {
@@ -30,6 +30,13 @@ type Schedule = {
  name: string,
  schedule: string,
 };
+
+type Profile = {
+  id: number,
+  name: string,
+  email: string,
+  owner: boolean,
+ };
 
 const ExistingSchedules = () => {
 
@@ -40,11 +47,16 @@ const ExistingSchedules = () => {
     const [ID, setID] = useState<number>(0);
     const [name, setName] = useState<string>("");
     const [schedule, setSchedule] = useState<string>("");
+    const [profiles, setProfiles] = useState<Profile[]>([]);
+
+    const thisUser = user?.primaryEmailAddress?.emailAddress ? user?.primaryEmailAddress?.emailAddress : 'Myself';
+    const [profile, setProfile] = useState(thisUser);
+
 
     // console.log(confirm);
     // console.log(ID);
 
-    const handleUpdate = (id, name, schedule, username) => {
+    const handleUpdate = (id, name, schedule, email) => {
       // console.log(id);
       // console.log(name);
       // console.log(email);
@@ -62,12 +74,12 @@ const ExistingSchedules = () => {
         } 
       };
   
-      const url = `http://localhost:6969/save_schedule?user_name=${username}&id=${id}&name=${name}&schedule=${schedule}`;
+      const url = `http://localhost:6969/save_schedule?email=${email}&id=${id}&name=${name}&schedule=${schedule}`;
       xhr.open("PUT", url, true);
       xhr.send();
     };
 
-    const handleDelete = (id, username) => {
+    const handleDelete = (id, email) => {
       // console.log(email);
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
@@ -79,7 +91,7 @@ const ExistingSchedules = () => {
         } 
       };
   
-      const url = `http://localhost:6969/save_schedule?user_name=${username}&id=${id}`;
+      const url = `http://localhost:6969/save_schedule?email=${email}&id=${id}`;
       xhr.open("DELETE", url, true);
       xhr.send();
     };
@@ -136,10 +148,17 @@ const ExistingSchedules = () => {
       },
     ]
 
-    useEffect(() => {
-        const user_name = user?.primaryEmailAddress?.emailAddress;
+    const handleSelectChange = (value) => {
+      if (value === thisUser) {
+        setProfile(thisUser);
+      } else {
+        const selectedProfile = profiles.find(profile => profile.name === value);
+        setProfile(selectedProfile ? selectedProfile.email : thisUser);
+      }
+    };
 
-        const xhr = new XMLHttpRequest();
+    const getSchedules = (profile) => {
+      const xhr = new XMLHttpRequest();
         setNames([]);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -150,10 +169,37 @@ const ExistingSchedules = () => {
             }
         };
 
-      const url = `http://localhost:6969/save_schedule?user_name=${user_name}`;
+      const url = `http://localhost:6969/save_schedule?email=${profile}`;
       xhr.open("GET", url, true);
       xhr.send();
+    }
 
+    useEffect(() => {
+      console.log(profile);
+        getSchedules(profile);
+
+    }, [profile]);
+
+    const getProfiles = () => {
+        // console.log(userEmail);
+        const xhr = new XMLHttpRequest();
+        setProfiles([]);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const userData = JSON.parse(xhr.responseText);
+                setProfiles(userData.data);
+            }
+            // console.log(xhr.response);
+        };
+
+        const url = `http://localhost:6969/user-profiles?owner_id=${thisUser}&is_owner=true`;
+        xhr.open("GET", url, true);
+        xhr.send();
+    }
+
+
+    useEffect(() => {
+        getProfiles();
     }, []);
     
 
@@ -163,6 +209,21 @@ const ExistingSchedules = () => {
             <div style={{ margin: '20px 0' }}>
                 <h2 style={{ margin: 0 }}>Saved Schedules</h2>
             </div>
+            <div style={{ marginTop: '20px', marginBottom: '10px', width: '40%', marginLeft: '30%' }}>
+                <Select onValueChange={handleSelectChange}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Profile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem key={thisUser} value={thisUser}>Myself</SelectItem>
+                    {profiles.map(profile => (
+                      <SelectItem key={profile.email} value={profile.name}>
+                        {profile.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             <div className="full" style={{ padding: '20px', width: '100%' }}>
               <DataTable columns={columns} data={names} />
               <Dialog open={confirm} onOpenChange={setConfirm}>
