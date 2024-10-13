@@ -332,30 +332,6 @@ const GenerateSchedule = () => {
     return (
         <div className="generate-schedule" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <Navbar />
-          {/* {error != '' && (
-            <Dialog open={error != ''} onOpenChange={() => setError('')}>
-              <DialogContent style={{ backgroundColor: 'f68c8c', color: 'c30909' }}>
-                <DialogHeader>å
-                  <DialogTitle>Error!</DialogTitle>
-                </DialogHeader>
-                <DialogDescription>
-                  {error}
-                </DialogDescription>
-              </DialogContent>
-            </Dialog>
-          )}
-          {success != '' && (
-            <Dialog open={success != ''} onOpenChange={() => setSuccess('')}>
-            <DialogContent style={{ backgroundColor: '91ec89', color: '18c609' }}>
-              <DialogHeader>
-                <DialogTitle>Success!</DialogTitle>
-              </DialogHeader>
-              <DialogDescription>
-                {success}
-              </DialogDescription>
-            </DialogContent>
-          </Dialog>
-          )} */}
           {schedule.length == 0 && !isGenerating && (
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>

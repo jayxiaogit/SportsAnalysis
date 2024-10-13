@@ -218,6 +218,7 @@ def user():
 @app.route('/save_schedule', methods=['POST', 'GET', 'DELETE', 'PUT'])
 def save():
     email = request.args.get('email')
+    is_owner = request.args.get('owner')
     if not email:
         return jsonify({"error": "Email is required"}), 400
     
@@ -226,7 +227,7 @@ def save():
         if not schedules:
             return jsonify({"error": "No schedules found for this user"}), 404
         
-        schedules_list = [{'id': sched.id, 'name': sched.name, 'schedule': sched.schedule} for sched in schedules]
+        schedules_list = [{'id': sched.id, 'username': sched.user_name, 'name': sched.name, 'schedule': sched.schedule} for sched in schedules]
         return jsonify({"data": schedules_list}), 200
         # if is_owner:
         #     users = User.query.filter_by(owner_id=current_user.user_name).all()
@@ -265,7 +266,7 @@ def save():
         if not schedule_id:
             return jsonify({"error": "Schedule ID and player username are required"}), 400
         
-        sched = Schedule.query.filter_by(id=schedule_id, email=email).first()
+        sched = Schedule.query.filter_by(id=schedule_id).first()
         if not sched:
             return jsonify({"error": "Schedule not found"}), 404
         
@@ -278,7 +279,7 @@ def save():
         if not schedule_id:
             return jsonify({"error": "Schedule ID and player username are required"}), 400
         
-        sched = Schedule.query.filter_by(id=schedule_id, email=email).first()
+        sched = Schedule.query.filter_by(id=schedule_id).first()
         if not sched:
             return jsonify({"error": "Schedule not found"}), 404
         
