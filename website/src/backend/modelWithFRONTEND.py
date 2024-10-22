@@ -145,22 +145,22 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={API_KEY}'
 
     # send the request
-    # response = requests.get(endpoint)
+    response = requests.get(endpoint)
 
 
-    # # handle the response
-    # if response.status_code == 200:
-    #     data = response.json()
-    #     playerLocationLat = data['lat']
-    #     playerLocationLong = data['lon']
-    # else:
-    #     return "error: " + response.reason + "\n"
+    # handle the response
+    if response.status_code == 200:
+        data = response.json()
+        playerLocationLat = data['lat']
+        playerLocationLong = data['lon']
+    else:
+        return "error: " + response.reason + "\n"
 
-    # #gathering information from player
-    # playerLocationLat = float(playerLocationLat)
-    playerLocationLat = 39.33031
-    # playerLocationLong = float(playerLocationLong)
-    playerLocationLong = -76.60235
+    #gathering information from player
+    playerLocationLat = float(playerLocationLat)
+    # playerLocationLat = 39.33031
+    playerLocationLong = float(playerLocationLong)
+    # playerLocationLong = -76.60235
     # print("Zipcode: ", zipcode)
     playerRanking = int(rank)
     # print("Ranking: ", playerRanking)

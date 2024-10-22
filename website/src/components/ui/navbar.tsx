@@ -106,15 +106,15 @@ const Navbar = () => {
                                     <div className="flex flex-col gap-4 py-4 w-full center" style={{ alignItems: 'center' }}>
                                         <DialogHeader>
                                             <DialogTitle style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center' }}>Profile Settings</DialogTitle>
-                                            <DialogDescription>
-                                                If you are a group owner, you can create player profiles and add schedules for those accounts.
+                                            <DialogDescription style={{textAlign: 'center', width: '60%', alignItems: 'center', justifyContent: 'center', margin: '0 auto'}}>
+                                                If you are a group owner, you can create player profiles and add schedules for those accounts. Once you become a group owner, you can't switch back in order to prevent you from losing your profile accounts and schedules. 
                                             </DialogDescription>
                                         </DialogHeader>
                                         <div className="flex items-left gap-4">
                                             <Label htmlFor="username" className="text-left">
                                                 Are you a group owner? 
                                             </Label>
-                                            <Switch checked={userOwner} onCheckedChange={handleSwitchChange}/>
+                                            <Switch checked={userOwner} onCheckedChange={handleSwitchChange} disabled={userOwner}/>
                                         </div>
                                     </div>
                                 </div>

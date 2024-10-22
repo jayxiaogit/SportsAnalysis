@@ -1,19 +1,53 @@
 import { Button } from "../components/ui/button";
 import { Link } from 'react-router-dom';
 import Navbar from "@/components/ui/navbar";
+import { useUser } from "@clerk/clerk-react";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
+
+    const userInfo = useUser();
+    const [userOwner, setUserOwner] = useState<boolean>(false);
+    const isSignedIn = userInfo.isSignedIn;
+
+    const getUserFromDb = (user) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            const gotUserData = JSON.parse(xhr.responseText);
+            setUserOwner(gotUserData.data.owner);
+          } 
+        };
+    
+        const username = user?.id;
+        const name = user?.fullName;
+        const email = user.primaryEmailAddress?.emailAddress;
+    
+        const url = `http://localhost:6969/user?user_name=${username}&name=${name}&email=${email}`;
+        xhr.open("GET", url, true);
+        xhr.send();
+      };
+    
+      useEffect(() => {
+        if (userInfo?.isSignedIn && userInfo?.user) {
+          getUserFromDb(userInfo?.user);
+        }
+      }, [isSignedIn, userInfo]);
 
     
     return (
         <div className="dashboard" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%', textAlign: 'center' }}>
         <Navbar />
-        <div className="create-profiles" style={{ width: '100%', padding: '20px' }}>
-            <Link to={"/create-profile"}><Button variant={"ghost"}>Create profiles</Button></Link>
-        </div>
-        <div className="existing-profiles" style={{ width: '100%', padding: '20px' }}>
-            <Link to={"/existing-profiles"}><Button variant={"ghost"}>Manage profiles</Button></Link>
-        </div>
+        {userOwner && (
+            <>
+                <div className="create-profiles" style={{ width: '100%', padding: '20px' }}>
+                    <Link to={"/create-profile"}><Button variant={"ghost"}>Create profiles</Button></Link>
+                </div>
+                <div className="existing-profiles" style={{ width: '100%', padding: '20px' }}>
+                    <Link to={"/existing-profiles"}><Button variant={"ghost"}>Manage profiles</Button></Link>
+                </div>
+            </>
+        )}
         <div className="existing-schedules" style={{ width: '100%', padding: '20px' }}>
             <Link to={"/existing-schedules"}><Button variant={"ghost"}>Manage schedules</Button></Link>
         </div>

@@ -21,7 +21,6 @@ const Home = () => {
         <div className="section" style={{ textAlign: 'center', flex: 1 }}>
           <h2 style={{ fontFamily: 'Faustina-Regular, Helvetica', fontSize: '20px', color: '#002d72', textDecoration: 'underline', marginBottom: '10px' }}>Interested in the WTA?</h2>
           <p style={{ fontFamily: 'Faustina-Regular, Helvetica', fontSize: '16px', color: '#002d72' }}>Explore the <a href="https://www.wtatennis.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: '#002d72' }}>Women's Tennis Association</a> and follow along the tournaments to support your favorite players!</p>
-          <p>Hi! This is a change.</p>
         </div>
       </div>
     </div>

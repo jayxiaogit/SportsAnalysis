@@ -211,6 +211,10 @@ const GenerateSchedule = () => {
             alert("Please enter valid numbers for ranking, zipcode, or rest.");
             return; // Exit function
         }
+        if (profile === "") {
+          alert("Please pick a profile to generate the schedule for.");
+          return;
+        }
         // Make the API call
         setIsGenerating(true);
         localStorage.setItem('ranking', ranking);
@@ -231,14 +235,10 @@ const GenerateSchedule = () => {
 
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
-            console.log(xhr.readyState)
             if (xhr.readyState === 4) {
-              // console.log("good");
               if (xhr.status === 200) {
                 const scheduleData = xhr.responseText;
-                console.log(scheduleData);
                 const scheduleArray = parseSchedule(scheduleData);
-                // console.log(scheduleArray);
                 setSchedule(scheduleArray);
                 setIsGenerating(false);
               }
@@ -258,7 +258,7 @@ const GenerateSchedule = () => {
 
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4 && xhr.status === 201) {
+          if (xhr.readyState === 4 && xhr.status === 200) {
             alert("Saved!");
           }
       };
@@ -279,17 +279,13 @@ const GenerateSchedule = () => {
     };
 
     const parseSchedule = (scheduleText: string) => {
-      console.log(scheduleText);
       const lines = scheduleText.split('|');
       const data = lines.map(line => {
         return line.split(':')[1];
       });
       const expectedP = data[data.length - 2];
-      console.log(expectedP);
       const expectedE = data[data.length - 1];
-      console.log(expectedE);
 
-      // console.log(expectedE);
       setExpectedPoints(expectedP);
       setExpectedEarnings(expectedE);
       const result = data.slice(0, -2);
@@ -297,17 +293,14 @@ const GenerateSchedule = () => {
     };
 
     const getProfiles = () => {
-      // console.log(userEmail);
       const userEmail = user?.primaryEmailAddress?.emailAddress;
       const xhr = new XMLHttpRequest();
       setProfiles([]);
       xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
               const userData = JSON.parse(xhr.responseText);
-              // console.log(userData);
               setProfiles(userData.data);
           }
-          // console.log(xhr.response);
       };
 
       const url = `http://localhost:6969/user-profiles?owner_id=${userEmail}&is_owner=true`;
@@ -326,7 +319,6 @@ const GenerateSchedule = () => {
 
     useEffect(() => {
         getProfiles();
-        // console.log(profiles);
     }, []);
 
     return (
@@ -335,7 +327,7 @@ const GenerateSchedule = () => {
           {schedule.length == 0 && !isGenerating && (
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>
-              <div style={{ marginTop: '20px', marginBottom: '10px', width: '40%', marginLeft: '30%' }}>
+              <div style={{ marginTop: '20px', marginBottom: '10px', width: '45%', marginLeft: '42%' }}>
                 <Select onValueChange={handleSelectChange}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Profile" />
@@ -545,7 +537,6 @@ const GenerateSchedule = () => {
                     <Input type="email" placeholder="Name" onChange={(e) => setScheduleName(e.target.value)}/>
                     <DialogFooter>
                       <Button type="submit" onClick={() => {
-                        // console.log(profile);
                         handleSaveClick(profile, schedule, scheduleName);
                         setIsOpen(false);
                       }}>Save</Button>
