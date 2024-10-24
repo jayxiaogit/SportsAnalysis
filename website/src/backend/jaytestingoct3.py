@@ -224,12 +224,24 @@ print("\n\n")
 """
 Work on include!
 """
-included = "Puerto Vallarta Open; Thailand Open"
+included = "W35 Malibu;W15 Fort-De-France;W35 Petit-Bourg"
 
 included_array = included.split(';')
 print("INCLUDED\n")
 print(included_array)
 print("\n\n")
+
+#now I'll add all tournaments that aren't the included ones into excluded array for same week:
+weekdata = []
+for i in range(len(tournament)):
+    if tournament[i] in included_array:
+        weekdata.append(week[i])
+
+for j in range(len(tournament)):
+    if (tournament[j] not in included_array) and (week[j] in weekdata):
+        excluded_array.append(tournament[j])
+print("round 2", excluded_array)
+    
 
 weeks = data_by_week.keys()
 tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{j}" for week in weeks for i in range(len(data_by_week[week]['points'])) for j in range(20)]
@@ -248,7 +260,7 @@ for tournament in tournaments:
     if add:
         filtered_tournaments.append(tournament)
 
-#exclude in data_by_week
+#exclude in data_by_week (this is helping include too)
 for week, data in data_by_week.items():
     tournaments = data['tournament']
     for i in excluded_array:
@@ -258,6 +270,8 @@ for week, data in data_by_week.items():
             del data_by_week[week]['points'][index]
             del data_by_week[week]['earnings'][index]
             del data_by_week[week]['distance'][index]
+
+print(data_by_week)
 
 print("filtered tournaments", filtered_tournaments)
 x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
@@ -271,7 +285,6 @@ weeks = list(weeks)
 for week_index, week in enumerate(weeks):
     for i in range(len(data_by_week[week]['points'])):
         key = f"{data_by_week[week]['tournament'][i]}_{week}_{i}"
-        print(key)  # Debug print
         if key not in tournament_selected:
             print("key not found", key)
         else:
@@ -321,13 +334,6 @@ for week, data in data_by_week.items():
             # Ensure the binary variable for this tournament is set to 1 (tournament is force selected)
             model += x[var_name] == 1, f"Force_Selection_{tournament_name}_{wk}_{index}"
 
-# for j in tournaments[:]:
-#     if j not in included_array and week in weekdata:
-#         index = data_by_week[week]['tournament'].index(j)
-#         data_by_week[week]['tournament'].remove(j)
-#         del data_by_week[week]['points'][index]
-#         del data_by_week[week]['earnings'][index]
-#         del data_by_week[week]['distance'][index]
 
 
 # Solve the optimization problem

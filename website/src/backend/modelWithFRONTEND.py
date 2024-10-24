@@ -282,6 +282,15 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     print(included_array)
     print("\n\n")
 
+    weekdata = []
+    for i in range(len(tournament)):
+        if tournament[i] in included_array:
+            weekdata.append(week[i])
+
+    for j in range(len(tournament)):
+        if (tournament[j] not in included_array) and (week[j] in weekdata):
+            excluded_array.append(tournament[j])
+
     weeks = data_by_week.keys()
     #update j here if we expand our database!!!!
     tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{j}" for week in weeks for i in range(len(data_by_week[week]['points'])) for j in range(20)]
