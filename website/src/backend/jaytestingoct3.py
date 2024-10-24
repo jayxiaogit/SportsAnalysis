@@ -224,7 +224,7 @@ print("\n\n")
 """
 Work on include!
 """
-included = "New Taipei City;Bucharest"
+included = "Puerto Vallarta Open"
 
 included_array = included.split(';')
 print("INCLUDED\n")
@@ -314,7 +314,7 @@ for week, data in data_by_week.items():
             tournament_name = data_by_week[week]["tournament"][index]
             wk = week
             var_name = f"{tournament_name}_{wk}_{index}" 
-            # Ensure the binary variable for this tournament is set to 1 (i.e., tournament is selected)
+            # Ensure the binary variable for this tournament is set to 1 (tournament is force selected)
             model += x[var_name] == 1, f"Force_Selection_{tournament_name}_{wk}_{index}"
 
 # Solve the optimization problem
