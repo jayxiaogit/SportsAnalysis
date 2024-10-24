@@ -308,14 +308,25 @@ model += lpSum(
 """Here is where the include code goes"""
 for week, data in data_by_week.items():
     tournaments = data['tournament']
+    weekdata = []
     for i in included_array:
         if i in tournaments:
             index = data_by_week[week]['tournament'].index(i)
             tournament_name = data_by_week[week]["tournament"][index]
             wk = week
+            weekdata.append(wk)
             var_name = f"{tournament_name}_{wk}_{index}" 
             # Ensure the binary variable for this tournament is set to 1 (tournament is force selected)
             model += x[var_name] == 1, f"Force_Selection_{tournament_name}_{wk}_{index}"
+
+    for j in tournaments[:]:
+        if j not in included_array and week in weekdata:
+            index = data_by_week[week]['tournament'].index(j)
+            data_by_week[week]['tournament'].remove(j)
+            del data_by_week[week]['points'][index]
+            del data_by_week[week]['earnings'][index]
+            del data_by_week[week]['distance'][index]
+
 
 # Solve the optimization problem
 model.solve()
