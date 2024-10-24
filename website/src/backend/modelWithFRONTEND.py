@@ -283,7 +283,8 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     print("\n\n")
 
     weeks = data_by_week.keys()
-    tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{j}" for week in weeks for i in range(len(data_by_week[week]['points'])) for j in range(10)]
+    #update j here if we expand our database!!!!
+    tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{j}" for week in weeks for i in range(len(data_by_week[week]['points'])) for j in range(20)]
 
     print("TOURNAMENTS\n")
     print(tournaments)
