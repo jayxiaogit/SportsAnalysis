@@ -253,7 +253,7 @@ for w in all_weeks:
 model = LpProblem(name="Tournament_Optimization", sense=LpMaximize)
 
 """
-Must work on exclude here
+The below code is testing for include
 """
 excluded = "Adelaide International 1,Adelaide International 2,Roland-Garros"
 
@@ -262,11 +262,32 @@ print("EXCLUDED\n")
 print(excluded_array)
 print("\n\n")
 
+"""
+Work on include!
+"""
+included = "W35 Malibu;W15 Fort-De-France;W35 Petit-Bourg"
+
+included_array = included.split(';')
+print("INCLUDED\n")
+print(included_array)
+print("\n\n")
+
+#now I'll add all tournaments that aren't the included ones into excluded array for same week:
+weekdata = []
+for i in range(len(tournament)):
+    if tournament[i] in included_array:
+        weekdata.append(week[i])
+
+for j in range(len(tournament)):
+    if (tournament[j] not in included_array) and (week[j] in weekdata):
+        excluded_array.append(tournament[j])
+print("round 2", excluded_array)
+
 weeks = data_by_week.keys()
-tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{j}" for week in weeks for i in range(len(data_by_week[week]['points'])) for j in range(10)]
+tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{j}" for week in weeks for i in range(len(data_by_week[week]['points'])) for j in range(20)]
 
 
-    # PLEASE ADD CODE TO FILTER THE TOURNAMENTS GIVEN THE EXCLUDED ARRAY
+# PLEASE ADD CODE TO FILTER THE TOURNAMENTS GIVEN THE EXCLUDED ARRAY
 filtered_tournaments = []
     
 for tournament in tournaments:
@@ -277,13 +298,6 @@ for tournament in tournaments:
             break  # No need to continue checking once a match is found
     if add:
         filtered_tournaments.append(tournament)
-
-
-x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
-y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
-tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
-# New variable to represent the end of a two-week tournament
-two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
 
 #exclude in data_by_week
 for week, data in data_by_week.items():
@@ -296,6 +310,12 @@ for week, data in data_by_week.items():
             del data_by_week[week]['earnings'][index]
             del data_by_week[week]['distance'][index]
 
+x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
+y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
+tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
+# New variable to represent the end of a two-week tournament
+two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
+
 print("tournament_selected")
 print(tournament_selected)
 # Constraints
@@ -303,7 +323,6 @@ weeks = list(weeks)
 for week_index, week in enumerate(weeks):
     print("Week:", week)
     print("Data by week:", data_by_week.get(week))
-    #model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
     model += lpSum(tournament_selected[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
 
 # Ensure the player doesn't play for restInput consecutive weeks
@@ -311,44 +330,6 @@ for i in range(len(weeks) - restInput + 1):
     consecutive_weeks = weeks[i:i + restInput]
     model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
     model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
-    
-
-'''
-rest_week_selected = LpVariable(f"RestWeekSelected_{i}", cat="Binary")  # New binary variable for rest week selection
-
-# Ensure the player doesn't play for restInput consecutive weeks
-for i in range(len(weeks) - restInput + 1):
-    consecutive_weeks = weeks[i:i + restInput]
-
-    # If the end of a two-week tournament falls in the consecutive weeks, add constraint to select rest week after that
-    for wk in consecutive_weeks:
-        model += lpSum(two_week_tournament_end[wk]) >= 1
-
-    # At least one of the consecutive weeks must be a rest week
-    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1
-
-    # Ensure that if rest_week_selected is 1, at least one of the consecutive weeks must be a rest week
-    model += lpSum(y[wk] for wk in consecutive_weeks) >= 1 - len(consecutive_weeks) + rest_week_selected
-
-    # Ensure that if a rest week is selected, it is selected for all consecutive weeks
-    for wk in consecutive_weeks:
-        model += rest_week_selected >= y[wk]  # If rest_week_selected is 1, y[wk] must be 1
-
-
-
-    # Change the tournament name to 'rest_tournament' if the rest week is selected
-    for wk in consecutive_weeks:
-        for j in range(len(data_by_week[wk]['points'])):
-            model += tournament_selected[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] == rest_week_selected
-
-
-# Add constraints to ensure that rest weeks are not selected if they belong to a two-week tournament
-for wk in weeks:
-    two_week_tournament_name = f"{data_by_week[wk]['tournament'][0]}_{wk}_0"  # Assuming the first tournament in the week is a two-week tournament
-    model += two_week_tournament_end[wk] >= x[two_week_tournament_name]
-    model += two_week_tournament_end[wk] >= rest_week_selected
-'''
-
 
 # Create a dictionary to store the selected tournaments by name
 selected_tournaments_by_name = {}
@@ -376,6 +357,19 @@ model += lpSum(
     #dialdistance * data_by_week[wk]['distance'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
     for wk in weeks for i in range(len(data_by_week[wk]['points'])))
 
+"""Force include the tournaments selected"""
+for week, data in data_by_week.items():
+    tournaments = data['tournament']
+    weekdata = []
+    for i in included_array:
+        if i in tournaments:
+            index = data_by_week[week]['tournament'].index(i)
+            tournament_name = data_by_week[week]["tournament"][index]
+            wk = week
+            weekdata.append(wk)
+            var_name = f"{tournament_name}_{wk}_{index}" 
+            # Ensure the binary variable for this tournament is set to 1 (tournament is force selected)
+            model += x[var_name] == 1, f"Force_Selection_{tournament_name}_{wk}_{index}"
 
 # Solve the optimization problem
 model.solve()
