@@ -300,7 +300,7 @@ for i in range(len(weeks) - restInput + 1):
 #TODO DEBUG HERE
 # Added code to control busyness of the schedule based on rest
 print("# weeks", len(weeks))
-total_tournaments = int((busyInput / 100) * len(weeks))  # Scale tournaments based on restInput (1-10)
+total_tournaments = int((busyInput / 11) * len(weeks))  # Scale tournaments based on restInput (1-10)
 model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for week in weeks for i in range(len(data_by_week[week]['points']))) <= total_tournaments
 
 # Create a dictionary to store the selected tournaments by name
