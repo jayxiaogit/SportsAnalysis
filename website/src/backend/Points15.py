@@ -18,11 +18,11 @@ def Points15(inputRanking):
 
     # Iterate over each row in the DataFrame
     for index, row in df.iterrows():
-        # Get the value of the first column (assuming rank data is in the first column)
-        rank = row[0]
+        # Get the value of the rank
+        rank = row[1]
     
-        # Get the value of column 1 (assuming column index starts from 0)
-        col_1_value = row[1]
+        # Get the value of result
+        col_1_value = row[2]
     
         # Determine the new rank based on the value of column 1
         if col_1_value == "W":
@@ -35,6 +35,10 @@ def Points15(inputRanking):
             new_rank = 3
         elif col_1_value == "R16":
             new_rank = 1
+        elif col_1_value == "R32":
+            new_rank = 1
+        else:
+            new_rank = 0
     
         # Add the rank and new rank to the result array
         result_array.append([rank, new_rank])

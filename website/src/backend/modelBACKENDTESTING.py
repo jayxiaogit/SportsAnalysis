@@ -142,9 +142,6 @@ for i in range(len(dfprize)):
     distance.append(distanceCalculator(playerLocationLat, playerLocationLong, lat_array[i], long_array[i]))
 
 #need to calculate expected return:
-#make some function to calculate the expected round a player will get to per tournament
-# RANKING WILL BE INPUTTED
-# REPLACE WITH ACTUAL MODEL, RIGHT NOW IT IS ONLY LINEAR
 def calculate_expected_earnings(level, ranking):
     expected_earnings = 0
     if level == "GS":

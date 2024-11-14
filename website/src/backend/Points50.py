@@ -7,7 +7,7 @@ def Points50(inputRanking):
     from sklearn.metrics import mean_squared_error, r2_score
 
     # Read the CSV file into a DataFrame
-    df = pd.read_csv("ITF50.csv")
+    df = pd.read_csv('ITF50.csv')
 
     # Filter missing or invalid data and drop duplicates
     df = df.dropna()
@@ -18,13 +18,13 @@ def Points50(inputRanking):
 
     # Iterate over each row in the DataFrame
     for index, row in df.iterrows():
-        # Get the value of the first column (assuming rank data is in the first column)
-        rank = row[0]
+        # Get the value of the first column
+        rank = row[1]
 
-        # Get the value of column 1 (assuming column index starts from 0)
-        col_1_value = row[1]
+        # Get the value of column 1
+        col_1_value = row[2]
     
-        # Determine the new rank based on the value of column 1
+        # Determine the points based on the value of column 1
         if col_1_value == "W":
             new_rank = 50
         elif col_1_value == "F":
@@ -43,6 +43,8 @@ def Points50(inputRanking):
             new_rank = 2
         elif col_1_value == "Q2":
             new_rank = 1
+        else:
+            new_rank = 0
 
     
         # Add the rank and new rank to the result array
