@@ -63,7 +63,9 @@ rest_tournament = "Rest"
 import pandas as pd
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize
 
-file_path = '/home/jxiao23/sports-analysis/website/src/backend/pointsdata.csv'
+#file_path = '/home/jxiao23/sports-analysis/website/src/backend/pointsdata.csv'
+
+file_path = 'pointsdata.csv'
 
 # Specify the column names
 columns = [
@@ -75,7 +77,8 @@ columns = [
 # Read the CSV file into a pandas DataFrame
 dfpoints = pd.read_csv(file_path, names=columns, skiprows=1)
 
-file_path2 = '/home/jxiao23/sports-analysis/website/src/backend/prizemoneydata.csv'
+#file_path2 = '/home/jxiao23/sports-analysis/website/src/backend/prizemoneydata.csv'
+file_path2 = 'prizemoneydata.csv'
 
 # Read the CSV file into a pandas DataFrame
 dfprize = pd.read_csv(file_path2, names=columns, skiprows=1)
