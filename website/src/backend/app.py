@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 from flask_migrate import Migrate
 from datetime import datetime
 
+import logging
+from middleware import MwTracker
+tracker=MwTracker()
+
 
 # Load environment variables from .env file
 load_dotenv()
