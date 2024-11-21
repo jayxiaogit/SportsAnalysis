@@ -412,13 +412,6 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     print(filtered_tournaments)
     print('\n\n')
 
-    x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
-    y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
-    tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
-    # New variable to represent the end of a two-week tournament
-    two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
-
-
     #exclude in data_by_week
     for week, data in data_by_week.items():
         tournaments = data['tournament']
@@ -429,6 +422,13 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
                 del data_by_week[week]['points'][index]
                 del data_by_week[week]['earnings'][index]
                 del data_by_week[week]['distance'][index]
+
+    x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
+    y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
+    tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
+    # New variable to represent the end of a two-week tournament
+    two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
+
 
     # Constraints
     weeks = list(weeks)
