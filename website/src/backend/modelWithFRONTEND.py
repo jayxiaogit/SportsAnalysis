@@ -566,5 +566,5 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
 
 
 
-with open('schedule.txt', 'w'):
-    print_results('21218', 'US', '50', '5', 9, 3, 2, 'Adelaide International 1', 'Adelaide International 2')
+# with open('schedule.txt', 'w'):
+#     print_results('21218', 'US', '50', '5', 9, 3, 2, 'Adelaide International 1', 'Adelaide International 2')
