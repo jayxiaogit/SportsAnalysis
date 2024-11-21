@@ -6,7 +6,6 @@ import pandas as pd
 from pulp import LpProblem, LpVariable, lpSum, LpMaximize
 import math
 
-
 #import expected returns models
 
 # Specify the path to your CSV file
@@ -27,91 +26,91 @@ API_KEY = os.getenv('API_KEY')
 def calculate_expected_earnings(level, ranking):
     expected_earnings = 0
     if level == "GS":
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'GrandSlam') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'GrandSlam') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "PM" or level == 1000:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'PremierMandatory') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'PremierMandatory') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "P" or level == 500:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'Premier') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'Premier') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "I" or level == 250:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'International') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'International') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "C" or level == 125:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I125') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I125') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "100" or level == 100:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I100') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I100') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "10" or level == 10:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I10') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I10') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "15" or level == 15:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I15') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I15') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "25" or level == 25:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I25') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I25') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "40" or level == 40:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I40') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I40') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "50" or level == 50:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I50') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I50') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "60" or level == 60:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I60') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I60') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "75" or level == 75:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I75') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I75') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "80" or level == 80:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I80') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'I80') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
             expected_earnings = 0 # this is the case where we haven't expanded the lookup table far enough
     elif level == "1" or level == 1:
-        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'UTR') & (dfExpectedReturns['Rank'] == playerRanking)]
+        player_data = dfExpectedReturns[(dfExpectedReturns['Level'] == 'UTR') & (dfExpectedReturns['Rank'] == ranking)]
         if not player_data.empty:
             expected_earnings = player_data['Earnings'].iloc[0]
         else:
