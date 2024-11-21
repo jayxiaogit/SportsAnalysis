@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 from concurrent.futures import ThreadPoolExecutor
 import csv
 
@@ -89,6 +90,18 @@ with open(output_file, mode='w', newline='', encoding='utf-8') as file:
     writer.writerows(results)
 
 print(f"Lookup table successfully written to {output_file}")
+=======
+#this file is implementing scikit/xgboost for regression as well as a simpler model for comparison
+
+#simple model using sci-kit learn
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+
+transformer = PolynomialFeatures(degree=2, include_bias=False)
+
+#advanced model using xgboost
+>>>>>>> parent of 2bae1c8 (building the lookup table)
 =======
 #this file is implementing scikit/xgboost for regression as well as a simpler model for comparison
 
