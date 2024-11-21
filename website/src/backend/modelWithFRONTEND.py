@@ -545,11 +545,11 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
                 total_expected_earnings += expected_earnings
 
     result += "Total Expected Points: "
-    formatted_points = "{:,.2f}".format(round(total_expected_points[0], 2))
+    formatted_points = "{:,.2f}".format(round(total_expected_points, 2))
     result += formatted_points
     result += "|"
     result += "Total Expected Earnings: "
-    formatted_earnings = "${:,.2f}".format(round(total_expected_earnings[0], 2))
+    formatted_earnings = "${:,.2f}".format(round(total_expected_earnings, 2))
     result += formatted_earnings
 
     # lines = result.strip().split('\n')
@@ -566,5 +566,5 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
 
 
 
-# with open('schedule.txt', 'w'):
-#     print_results('21218', 'US', '50', '5', 9, 3, 2)
+with open('schedule.txt', 'w'):
+    print_results('21218', 'US', '50', '5', 9, 3, 2, 'Adelaide International 1', 'Adelaide International 2')
