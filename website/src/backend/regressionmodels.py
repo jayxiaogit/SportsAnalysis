@@ -1,4 +1,7 @@
-# this file will be the center for all the regression models, and will create the lookup table
+from concurrent.futures import ThreadPoolExecutor
+import csv
+
+# Import necessary modules
 from processGrandSlam import *
 from processGrandSlamPoints import *
 from processPremier import *
@@ -7,7 +10,6 @@ from processPremierMandatory import *
 from processPremierMandatoryPoints import *
 from processInternational import *
 from processInternationalPoints import *
-
 from Earnings125 import *
 from Points125 import *
 from Earnings100 import *
@@ -30,55 +32,59 @@ from Earnings80 import *
 from Points80 import *
 from EarningsUTR import *
 
-# Level: [earnings][points]
-predictor = {
-    "GrandSlam": [[], []],
-    "Premier": [[], []],
-    "PremierMandatory": [[], []],
-    "International": [[], []],
-    "I125": [[], []],
-    "I100": [[], []],
-    "I10": [[], []],
-    "I15": [[], []],
-    "I25": [[], []],
-    "I40": [[], []],
-    "I50": [[], []],
-    "I60": [[], []],
-    "I75": [[], []],
-    "I80": [[], []],
-    "UTR": [[], []]
+# File name for the output CSV
+output_file = "regression_lookup_table.csv"
+
+# Define levels and their corresponding functions
+levels = {
+    "GrandSlam": (GrandSlamEarnings, GrandSlamPoints),
+    "Premier": (PremierEarnings, PremierPoints),
+    "PremierMandatory": (PMEarnings, PMPoints),
+    "International": (InternationalEarnings, InternationalPoints),
+    "I125": (Earnings125, Points125),
+    "I10": (Earnings10, Points10),
+    "I15": (Earnings15, Points15),
+    "I25": (Earnings25, Points25),
+    "I40": (Earnings40, Points40),
+    "I50": (Earnings50, Points50),
+    "I60": (Earnings60, Points60),
+    "I75": (Earnings75, Points75),
+    "I80": (Earnings80, Points80),
+    "UTR": (EarningsUTR, lambda _: [1] * scope),  # UTR provides no pro points
 }
 
-# this variable will determine how long the dictionary and later csv will be
+# Scope of rankings
 scope = 1500
-for ranking in range(1, scope):
-    predictor[GrandSlam][0].append(GrandSlamEarnings(ranking))
-    predictor[Premier][0].append(PremierEarnings(ranking))
-    predictor[PremierMandatory][0].append(PMEarnings(ranking))
-    predictor[International][0].append(InternationalEarnings(ranking))
-    predictor[I125][0].append(Earnings125(ranking))
-    predictor[GrandSlam][1].append(GrandSlamPoints(ranking))
-    predictor[Premier][1].append(PremierPoints(ranking))
-    predictor[PremierMandatory][1].append(PMPoints(ranking))
-    predictor[International][1].append(InternationalPoints(ranking))
-    predictor[I125][1].append(Points125(ranking))
-    predictor[I10][0].append(Earnings10(ranking))
-    predictor[I10][1].append(Points10(ranking))
-    predictor[I15][0].append(Earnings15(ranking))
-    predictor[I15][1].append(Points15(ranking))
-    predictor[I25][0].append(Earnings25(ranking))
-    predictor[I25][1].append(Points25(ranking))
-    predictor[I40][0].append(Earnings40(ranking))
-    predictor[I40][1].append(Points40(ranking))
-    predictor[I50][0].append(Earnings50(ranking))
-    predictor[I50][1].append(Points50(ranking))
-    predictor[I60][0].append(Earnings60(ranking))
-    predictor[I60][1].append(Points60(ranking))
-    predictor[I75][0].append(Earnings75(ranking))
-    predictor[I75][1].append(Points75(ranking))
-    predictor[I80][0].append(Earnings75(ranking))
-    predictor[I80][1].append(Points75(ranking))
-    predictor[UTR][0].append(EarningsUTR(ranking))
-    predictor[UTR][1].append(1) # UTR provides no pro points
 
-# now create a csv using the dictionary
+# Function to process a single ranking
+def process_ranking(ranking):
+    data = []
+    for level, (earn_func, points_func) in levels.items():
+        earnings = earn_func(ranking)
+        points = points_func(ranking)
+
+        # Ensure we split arrays correctly
+        for rank_idx, (earn, point) in enumerate(zip(earnings, points), start=1):
+            data.append({
+                "Level": level,
+                "Rank": rank_idx,
+                "Earnings": earn.item() if hasattr(earn, 'item') else earn,  # Convert if necessary
+                "Points": point.item() if hasattr(point, 'item') else point  # Convert if necessary
+            })
+    return data
+
+# Use ThreadPoolExecutor for parallel processing
+results = []
+with ThreadPoolExecutor() as executor:
+    # Process rankings in parallel
+    futures = [executor.submit(process_ranking, scope)]
+    for future in futures:
+        results.extend(future.result())
+
+# Flatten the results and write to CSV
+with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.DictWriter(file, fieldnames=["Level", "Rank", "Earnings", "Points"])
+    writer.writeheader()
+    writer.writerows(results)
+
+print(f"Lookup table successfully written to {output_file}")

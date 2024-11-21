@@ -1,4 +1,4 @@
-def Earnings10(inputRanking):
+def Earnings10(scope):
     import pandas as pd
     import matplotlib.pyplot as plt
     import random
@@ -37,6 +37,8 @@ def Earnings10(inputRanking):
             new_rank = 294
         elif col_1_value == "R32":
             new_rank = 147
+        else:
+            new_rank = 0
     
         # Add the rank and new rank to the result array
         result_array.append([rank, new_rank])
@@ -78,12 +80,12 @@ def Earnings10(inputRanking):
     plt.ticklabel_format(style='plain', axis='y')
 
     # Reshape the new rank to match the model's input shape
-    new_rank_reshaped = [[inputRanking]]
+    predicted_earnings = []
+    for i in range(1, scope):
+        new_rank_reshaped = [[i]]
 
-    # Make prediction on the new data point
-    predicted_earnings = rf_model.predict(new_rank_reshaped)
-
-    print("Predicted Earnings:", predicted_earnings)
+        # Make prediction on the new data point
+        predicted_earnings.append(rf_model.predict(new_rank_reshaped))
 
     return predicted_earnings
 
