@@ -86,6 +86,7 @@ const GenerateSchedule = () => {
     const [travel, setTravel] = useState([5]);
     const [earnings, setEarnings] = useState([5]);
     const [points, setPoints] = useState([5]);
+    const [jay, setJay] = useState([5]);
     const [zipcode, setZipcode] = useState('');
     const [countrycode, setCountry] = useState(''); 
     const [schedule, setSchedule] = useState<string[]>([]); 
@@ -283,7 +284,7 @@ const GenerateSchedule = () => {
       const data = lines.map(line => {
         return line.split(':')[1];
       });
-      const expectedP = data[data.length - 2];
+      const expectedP = data[data.length - 3];
       const expectedE = data[data.length - 1];
 
       setExpectedPoints(expectedP);
@@ -327,7 +328,7 @@ const GenerateSchedule = () => {
           {schedule.length == 0 && !isGenerating && (
             <div style={{ marginTop: '20px', textAlign: 'center', width: '80%' }}>
               <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '20px', letterSpacing: '0', lineHeight: 'normal' }}>Generate New Schedule</div>
-              <div style={{ marginTop: '20px', marginBottom: '10px', width: '45%', marginLeft: '42%' }}>
+              <div style={{ marginTop: '20px', marginBottom: '10px', width: '50%', marginLeft: '42%' }}>
                 <Select onValueChange={handleSelectChange}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Profile" />
@@ -349,28 +350,36 @@ const GenerateSchedule = () => {
                 <Input type="rest" placeholder='How often do you want rest?' style={{marginBottom: '30px', width:'40%', marginLeft:'30%', textAlign:'center'}} value={rest} onChange={(event) => setRest(event.target.value)}/>
                 <div>
                   <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
-                    How far do you want to travel?
+                    How important is it for you to travel far? (If you don't want to travel far at all, slide this to 'Not at all')
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
-                    <div>0</div>
+                    <div>Not at all</div>
                     <Slider value={travel} max={10} step={.1} style={{ flex: 1, marginLeft: '20px', marginRight: '20px', width: '500px'}} onValueChange={(value) => setTravel([Math.round(value[0])])}/>
-                    <div>10</div>
+                    <div>Very important</div>
                   </div>
                   <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
-                    How important are earnings?
+                    How important are earnings? (If you don't care about earnings - $ - then put the slider to 'Not at all')
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
-                    <div>0</div>
+                    <div>Not at all</div>
                     <Slider value={earnings} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setEarnings([Math.round(value[0])])}/>
-                    <div>10</div>
+                    <div>Very important</div>
                   </div>
                   <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
-                    How important are rankings?
+                    How important are rankings? (If you don't care about rankings / points, then put the slider to 'Not at all')
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
-                    <div>0</div>
+                    <div>Not at all</div>
                     <Slider value={points} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setPoints([Math.round(value[0])])}/>
-                    <div>10</div>
+                    <div>Very important</div>
+                  </div>
+                  <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
+                    Jay's slider
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
+                    <div>Not at all</div>
+                    <Slider value={travel} max={10} step={.1} style={{ flex: 1, marginLeft: '20px', marginRight: '20px', width: '500px'}} onValueChange={(value) => setJay([Math.round(value[0])])}/>
+                    <div>Very important</div>
                   </div>
                 </div>
                 <div className="w-full">
@@ -491,7 +500,7 @@ const GenerateSchedule = () => {
           )}
           {isGenerating && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <p style={{ fontSize: '24px' }}>Generating schedule...</p>
+                <p style={{ fontSize: '24px' }}>Generating schedule... This may take a few minutes</p>
             </div>
           )}
           {schedule.length !== 0 && !isGenerating && (
@@ -520,11 +529,11 @@ const GenerateSchedule = () => {
                     ))}
                 </TableBody>
               </Table>
-              <div>
-                <p style={{color: 'black', textAlign: 'center'}}>Expected points: {expectedPoints}</p>
-                <p>Expected earnings: {expectedEarnings}</p>
+              <div style={{paddingBottom: '5%', paddingTop: '5%'}}>
+                <p style={{color: 'black'}}>Expected points: {expectedPoints}</p>
+                <p style={{paddingBottom: '5%'}}>Expected earnings: {expectedEarnings}</p>
                 <Link to="/generate-schedule">
-                  <Button variant={'default'} onClick={() => setSchedule([])}>Regenerate</Button>
+                  <Button variant={'default'} style={{ padding: '10px', marginBottom: '10px' }} onClick={() => setSchedule([])}>Regenerate</Button>
                 </Link>
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                   <DialogTrigger>
@@ -536,7 +545,7 @@ const GenerateSchedule = () => {
                     </DialogHeader>
                     <Input type="email" placeholder="Name" onChange={(e) => setScheduleName(e.target.value)}/>
                     <DialogFooter>
-                      <Button type="submit" onClick={() => {
+                      <Button type="submit" style={{marginRight: '5%'}} onClick={() => {
                         handleSaveClick(profile, schedule, scheduleName);
                         setIsOpen(false);
                       }}>Save</Button>

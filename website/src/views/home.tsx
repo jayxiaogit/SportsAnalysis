@@ -1,7 +1,15 @@
 import Navbar from "@/components/ui/navbar";
+import { useUser, RedirectToSignIn } from '@clerk/clerk-react';
 
 const Home = () => {
-  
+
+  const { isSignedIn } = useUser(); // Using Clerk's hook to get the user's sign-in status
+
+  // If the user is not signed in, show login
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
+
   return (
     <div className="home-page" style={{ background: 'linear-gradient(to bottom, #4facfe, #ffffff)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
       <Navbar />
