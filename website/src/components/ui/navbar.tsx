@@ -60,16 +60,15 @@ const Navbar = () => {
                 <Link to="/" className="text-wrapper">
                     <Button variant={path === "/" ? "secondary" : "ghost"}>Home</Button>
                 </Link>
+                <Link to="/about" className="text-wrapper">
+                    <Button variant={path === "/about" ? "secondary" : "ghost"}>About Us</Button>
+                </Link>
                 <Link to="/getstarted" className="text-wrapper">
                     <Button variant={path === "/getstarted" ? "secondary" : "ghost"}>Get Started</Button>
                 </Link>
-                {userInfo.user ? (
+                {userInfo.user && (
                     <Link to="/dashboard" className="text-wrapper">
                         <Button variant={path === "/dashboard" ? "secondary" : "ghost"}>Dashboard</Button>
-                    </Link>
-                ) : (
-                    <Link to="/about" className="text-wrapper">
-                        <Button variant={path === "/about" ? "secondary" : "ghost"}>About Us</Button>
                     </Link>
                 )}
             </div>
