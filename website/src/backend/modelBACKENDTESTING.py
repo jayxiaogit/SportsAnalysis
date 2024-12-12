@@ -539,7 +539,7 @@ for var in model.variables():
 # Print total expected points and earnings
 print("Total Expected Points:", total_expected_points)
 print("Total Expected Earnings:", total_expected_earnings)
-print("Total Expected Distance:", total_expected_distance)
+print("Total Expected Distance in Km:", total_expected_distance)
 
 
 
