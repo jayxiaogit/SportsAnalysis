@@ -519,6 +519,7 @@ for tournament_info in selected_tournaments:
     # Calculate total expected points and earnings
 total_expected_points = 0
 total_expected_earnings = 0
+total_expected_distance = 0
 
 for var in model.variables():
     if var.varValue == 1 and "Rest" not in var.name:
@@ -529,14 +530,16 @@ for var in model.variables():
         if week_index is not None:
             expected_points = data_by_week[week_index]['points'][int(components[-1])]
             expected_earnings = data_by_week[week_index]['earnings'][int(components[-1])]
+            expected_distance = data_by_week[week_index]['distance'][int(components[-1])]
             
             total_expected_points += expected_points
             total_expected_earnings += expected_earnings
+            total_expected_distance += expected_distance
 
 # Print total expected points and earnings
 print("Total Expected Points:", total_expected_points)
 print("Total Expected Earnings:", total_expected_earnings)
-
+print("Total Expected Distance in Km:", total_expected_distance)
 
 
 
