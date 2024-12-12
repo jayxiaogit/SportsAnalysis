@@ -309,7 +309,7 @@ const GenerateSchedule = () => {
       xhr.send();
   }
 
-    const handleSelectChange = (value) => {
+    const handleSelectChange = (value: string) => {
       if (value === thisUser) {
         setProfile(thisUser);
       } else {

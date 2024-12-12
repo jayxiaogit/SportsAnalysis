@@ -39,7 +39,7 @@ const ExistingProfiles = () => {
     const [update, setUpdate] = useState<boolean>(false);
 
 
-    const handleUpdate = (id, name, email) => {
+    const handleUpdate = (id: number, name: string, email: string) => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -57,7 +57,7 @@ const ExistingProfiles = () => {
         xhr.send();
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = (id: number) => {
     //   console.log(id);
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {

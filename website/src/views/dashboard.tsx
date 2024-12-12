@@ -10,7 +10,7 @@ const Dashboard = () => {
     const [userOwner, setUserOwner] = useState<boolean>(false);
     const isSignedIn = userInfo.isSignedIn;
 
-    const getUserFromDb = (user) => {
+    const getUserFromDb = (id: string, name: string, email: string) => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
@@ -19,18 +19,14 @@ const Dashboard = () => {
           } 
         };
     
-        const username = user?.id;
-        const name = user?.fullName;
-        const email = user.primaryEmailAddress?.emailAddress;
-    
-        const url = `http://localhost:6969/user?user_name=${username}&name=${name}&email=${email}`;
+        const url = `http://localhost:6969/user?user_name=${id}&name=${name}&email=${email}`;
         xhr.open("GET", url, true);
         xhr.send();
       };
     
       useEffect(() => {
-        if (userInfo?.isSignedIn && userInfo?.user) {
-          getUserFromDb(userInfo?.user);
+        if (userInfo?.isSignedIn && userInfo?.user?.id && userInfo?.user?.fullName && userInfo?.user?.primaryEmailAddress?.emailAddress) {
+          getUserFromDb(userInfo.user.id, userInfo.user.fullName, userInfo.user.primaryEmailAddress.emailAddress);
         }
       }, [isSignedIn, userInfo]);
 
