@@ -86,7 +86,7 @@ const GenerateSchedule = () => {
     const [travel, setTravel] = useState([5]);
     const [earnings, setEarnings] = useState([5]);
     const [points, setPoints] = useState([5]);
-    const [jay, setJay] = useState([5]);
+    // const [jay, setJay] = useState([5]);
     const [zipcode, setZipcode] = useState('');
     const [countrycode, setCountry] = useState(''); 
     const [schedule, setSchedule] = useState<string[]>([]); 
@@ -309,7 +309,7 @@ const GenerateSchedule = () => {
       xhr.send();
   }
 
-    const handleSelectChange = (value) => {
+    const handleSelectChange = (value: string) => {
       if (value === thisUser) {
         setProfile(thisUser);
       } else {
@@ -373,14 +373,14 @@ const GenerateSchedule = () => {
                     <Slider value={points} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setPoints([Math.round(value[0])])}/>
                     <div>Very important</div>
                   </div>
-                  <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
-                    Jay's slider
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
+                  {/* <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
+                    How busy do you want your schedule to be?
+                  </div> */}
+                  {/* <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
                     <div>Not at all</div>
                     <Slider value={travel} max={10} step={.1} style={{ flex: 1, marginLeft: '20px', marginRight: '20px', width: '500px'}} onValueChange={(value) => setJay([Math.round(value[0])])}/>
                     <div>Very important</div>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="w-full">
                   <div className="flex items-center py-4">

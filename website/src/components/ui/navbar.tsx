@@ -16,9 +16,7 @@ const Navbar = () => {
 
     const [userOwner, setUserOwner] = useState<boolean>(false);
 
-    // const [userSettingsOpen, setUserSettingsOpen] = useState<boolean>(false);
-
-    const getUserFromDb = (user) => {
+    const getUserFromDb = (id: string, name: string, email: string) => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
@@ -27,30 +25,24 @@ const Navbar = () => {
           } 
         };
     
-        const username = user?.id;
-        const name = user?.fullName;
-        const email = user.primaryEmailAddress?.emailAddress;
-    
-        const url = `http://localhost:6969/user?user_name=${username}&name=${name}&email=${email}`;
+        const url = `http://localhost:6969/user?user_name=${id}&name=${name}&email=${email}`;
         xhr.open("GET", url, true);
         xhr.send();
-      };
+    };
     
-      useEffect(() => {
-        if (userInfo?.isSignedIn && userInfo?.user) {
-          getUserFromDb(userInfo?.user);
-        }
-      }, [isSignedIn, userInfo]);
+    useEffect(() => {
+    if (userInfo?.isSignedIn && userInfo?.user && userInfo?.user.fullName && userInfo?.user.primaryEmailAddress?.emailAddress) {
+        getUserFromDb(userInfo?.user.id, userInfo?.user.fullName, userInfo?.user.primaryEmailAddress?.emailAddress);
+    }
+    }, [isSignedIn, userInfo]);
 
     const handleSwitchChange = () => {
         const newOwnerStatus = !userOwner;
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            // window.location.reload();
             setUserOwner(newOwnerStatus);
           } 
-        //   console.log(xhr.response);
         };
     
         const username = user?.id;
@@ -68,16 +60,15 @@ const Navbar = () => {
                 <Link to="/" className="text-wrapper">
                     <Button variant={path === "/" ? "secondary" : "ghost"}>Home</Button>
                 </Link>
+                <Link to="/about" className="text-wrapper">
+                    <Button variant={path === "/about" ? "secondary" : "ghost"}>About Us</Button>
+                </Link>
                 <Link to="/getstarted" className="text-wrapper">
                     <Button variant={path === "/getstarted" ? "secondary" : "ghost"}>Get Started</Button>
                 </Link>
-                {userInfo.user ? (
+                {userInfo.user && (
                     <Link to="/dashboard" className="text-wrapper">
                         <Button variant={path === "/dashboard" ? "secondary" : "ghost"}>Dashboard</Button>
-                    </Link>
-                ) : (
-                    <Link to="/about" className="text-wrapper">
-                        <Button variant={path === "/about" ? "secondary" : "ghost"}>About Us</Button>
                     </Link>
                 )}
             </div>

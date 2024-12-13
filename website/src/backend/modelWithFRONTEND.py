@@ -412,13 +412,6 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     print(filtered_tournaments)
     print('\n\n')
 
-    x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
-    y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
-    tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
-    # New variable to represent the end of a two-week tournament
-    two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
-
-
     #exclude in data_by_week
     for week, data in data_by_week.items():
         tournaments = data['tournament']
@@ -429,6 +422,13 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
                 del data_by_week[week]['points'][index]
                 del data_by_week[week]['earnings'][index]
                 del data_by_week[week]['distance'][index]
+
+    x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
+    y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
+    tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
+    # New variable to represent the end of a two-week tournament
+    two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
+
 
     # Constraints
     weeks = list(weeks)
@@ -545,11 +545,11 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
                 total_expected_earnings += expected_earnings
 
     result += "Total Expected Points: "
-    formatted_points = "{:,.2f}".format(round(total_expected_points[0], 2))
+    formatted_points = "{:,.2f}".format(round(total_expected_points, 2))
     result += formatted_points
     result += "|"
     result += "Total Expected Earnings: "
-    formatted_earnings = "${:,.2f}".format(round(total_expected_earnings[0], 2))
+    formatted_earnings = "${:,.2f}".format(round(total_expected_earnings, 2))
     result += formatted_earnings
 
     # lines = result.strip().split('\n')
@@ -567,4 +567,4 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
 
 
 # with open('schedule.txt', 'w'):
-#     print_results('21218', 'US', '50', '5', 9, 3, 2)
+#     print_results('21218', 'US', '50', '5', 9, 3, 2, 'Adelaide International 1', 'Adelaide International 2')
