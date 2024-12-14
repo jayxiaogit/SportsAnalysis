@@ -3,17 +3,20 @@ import { useEffect } from "react";
 
 
 const SignInPage = () => {
+
+  const base_url = process.env.REACT_APP_BASE_URL;
+
   const { user, isSignedIn } = useUser();
 
   const addUserToDb = (id: string, name: string, email: string) => {
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        console.log("Success");
+        // console.log("Success");
       } 
     };
 
-    const url = `http://localhost:6969/user?user_name=${id}&name=${name}&email=${email}&is_owner=false`;
+    const url = `${base_url}/user?user_name=${id}&name=${name}&email=${email}&is_owner=false`;
     xhr.open("POST", url, true);
     xhr.send();
   };

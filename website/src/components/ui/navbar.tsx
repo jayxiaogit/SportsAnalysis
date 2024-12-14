@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch"
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
+
+    const base_url = process.env.REACT_APP_BASE_URL;
     const userInfo = useUser();
     const user = userInfo?.user;
     const isSignedIn = userInfo.isSignedIn;
@@ -25,7 +27,7 @@ const Navbar = () => {
           } 
         };
     
-        const url = `http://localhost:6969/user?user_name=${id}&name=${name}&email=${email}`;
+        const url = `${base_url}/user?user_name=${id}&name=${name}&email=${email}`;
         xhr.open("GET", url, true);
         xhr.send();
     };
@@ -49,7 +51,7 @@ const Navbar = () => {
         const name = user?.fullName;
         const email = user?.primaryEmailAddress?.emailAddress;
     
-        const url = `http://localhost:6969/user?user_name=${username}&name=${name}&email=${email}&is_owner=${newOwnerStatus}`;
+        const url = `${base_url}/user?user_name=${username}&name=${name}&email=${email}&is_owner=${newOwnerStatus}`;
         xhr.open("PUT", url, true);
         xhr.send();
     }

@@ -34,6 +34,9 @@ type Profile = {
 };
 
 const ExistingSchedules = () => {
+  const base_url = process.env.REACT_APP_BASE_URL;
+
+
   const { user } = useUser();
   const [names, setNames] = useState<Schedule[]>([]);
   const [confirm, setConfirm] = useState<boolean>(false);
@@ -46,7 +49,6 @@ const ExistingSchedules = () => {
 
   const thisUser = user?.primaryEmailAddress?.emailAddress ? user?.primaryEmailAddress?.emailAddress : 'Myself';
 
-  // Initially empty array, later this will hold the individual schedule items (weeks)
   const [scheduleItems, setScheduleItems] = useState<string[]>(schedule.split(','));
 
   const handleUpdate = (id: number, name: string, schedule: string, email: string) => {
@@ -62,7 +64,7 @@ const ExistingSchedules = () => {
       }
     };
 
-    const url = `http://localhost:6969/save_schedule?email=${email}&id=${id}&name=${name}&schedule=${schedule}`;
+    const url = `${base_url}/save_schedule?email=${email}&id=${id}&name=${name}&schedule=${schedule}`;
     xhr.open("PUT", url, true);
     xhr.send();
   };
@@ -75,7 +77,7 @@ const ExistingSchedules = () => {
       }
     };
 
-    const url = `http://localhost:6969/save_schedule?email=${email}&id=${id}`;
+    const url = `${base_url}/save_schedule?email=${email}&id=${id}`;
     xhr.open("DELETE", url, true);
     xhr.send();
   };
@@ -86,10 +88,8 @@ const ExistingSchedules = () => {
     setScheduleItems(updatedSchedule);
   };
 
-  // Combine the schedule items back into a string when saving
   const handleSave = () => {
     const updatedScheduleString = scheduleItems.join(',');
-    console.log(updatedScheduleString);
     handleUpdate(ID, name, updatedScheduleString, email);
     setUpdate(false);
   };
@@ -101,35 +101,28 @@ const ExistingSchedules = () => {
     const formattedDate = currentDate.toISOString().split('T')[0];
 
     const marginX = 20;
-    let marginY = 30; // Starting Y position for the first line
-    const lineHeight = 10; // Spacing between lines
-    // const maxWidth = 180; // Maximum width of the text
+    let marginY = 30;
+    const lineHeight = 10;
 
-    // Add the name (text)
     doc.text("Schedule Name: ", marginX, marginY);
-    doc.text(name, marginX + 60, marginY); // Added offset for the name
-    marginY += lineHeight; // Move down for the next text
-
-    // Add the username
-    doc.text("Player's email: ", marginX, marginY);
-    doc.text(username, marginX + 60, marginY); // Added offset for the username
+    doc.text(name, marginX + 60, marginY);
     marginY += lineHeight;
 
-    // Prepare the schedule data for the table
+    doc.text("Player's email: ", marginX, marginY);
+    doc.text(username, marginX + 60, marginY);
+    marginY += lineHeight;
+
     const scheduleRows = schedule.split(',').map(item => item.trim());
     const tableData = scheduleRows.map((row, index) => [index + 1, row]);
 
-    // Add the table
     autoTable(doc, {
-      startY: marginY, // Specify the Y position to start the table from
-      head: [['Week', 'Tournament']], // Table headers
-      body: tableData, // Data for the table
+      startY: marginY,
+      head: [['Week', 'Tournament']],
+      body: tableData, 
     });
 
-    // Generate file name
     const fileName = `${formattedDate}-tennis-schedule-${name}.pdf`;
 
-    // Save the PDF
     doc.save(fileName);
   };
 
@@ -158,7 +151,7 @@ const ExistingSchedules = () => {
           setName(row.original.name);
           setSchedule(row.original.schedule);
           setEmail(row.original.username);
-          setScheduleItems(row.original.schedule.split(',')); // Split the schedule into items
+          setScheduleItems(row.original.schedule.split(','));
         }}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
@@ -226,7 +219,7 @@ const ExistingSchedules = () => {
             allNames.push(...myScheduleData.data);
           }
         } else {
-          console.log("Couldn't find schedules for your account.");
+          alert("Couldn't find schedules for your account.");
         }
 
         if (requestsCompleted === 1 + profiles.length) {
@@ -235,7 +228,7 @@ const ExistingSchedules = () => {
       }
     };
 
-    const myUrl = `http://localhost:6969/save_schedule?email=${myEmail}`;
+    const myUrl = `${base_url}/save_schedule?email=${myEmail}`;
     xhrMySchedules.open("GET", myUrl, true);
     xhrMySchedules.send();
 
@@ -251,17 +244,16 @@ const ExistingSchedules = () => {
               allNames.push(...scheduleData.data);
             }
           } else {
-            console.log(`Couldn't find schedules for user: ${profile.email}`);
+            alert(`Couldn't find schedules for user: ${profile.email}`);
           }
 
-          // Check if all requests are completed
           if (requestsCompleted === 1 + profiles.length) {
             setNames(allNames);
           }
         }
       };
 
-      const url = `http://localhost:6969/save_schedule?email=${profile.email}`;
+      const url = `${base_url}/save_schedule?email=${profile.email}`;
       xhr.open("GET", url, true);
       xhr.send();
     });
@@ -277,7 +269,7 @@ const ExistingSchedules = () => {
       }
     };
 
-    const url = `http://localhost:6969/user-profiles?owner_id=${thisUser}&is_owner=true`;
+    const url = `${base_url}/user-profiles?owner_id=${thisUser}&is_owner=true`;
     xhr.open("GET", url, true);
     xhr.send();
   };
@@ -333,7 +325,7 @@ const ExistingSchedules = () => {
                     value={item}
                     onChange={(e) => handleScheduleChange(index, e.target.value)}
                     placeholder={`Week ${index + 1}`}
-                    style={{ marginBottom: '10px' }} // Optional: Add margin for spacing
+                    style={{ marginBottom: '10px' }}
                   />
                 ))}
               </div>

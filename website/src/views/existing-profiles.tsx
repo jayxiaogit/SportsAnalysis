@@ -7,7 +7,6 @@ import {
   } from "@tanstack/react-table";
 import Navbar from '@/components/ui/navbar';
 import { Button } from '@/components/ui/button';
-// import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -16,8 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
-// import { Textarea } from '@/components/ui/textarea';
-
 
 type Profile = {
  id: number,
@@ -27,7 +24,8 @@ type Profile = {
 };
 
 const ExistingProfiles = () => {
-    // window.location.reload();
+
+  const base_url = process.env.REACT_APP_BASE_URL;
 
     const { user } = useUser();
     const userEmail = user?.primaryEmailAddress?.emailAddress;
@@ -43,33 +41,28 @@ const ExistingProfiles = () => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                // getProfiles();
                 setProfiles((prevProfiles) => 
                     prevProfiles.map((profile) => 
                         profile.id === id ? { ...profile, name, email } : profile
                     )
                 );
-                setUpdate(false); // Close the update dialog
+                setUpdate(false); 
             }
         };
-        const url = `http://localhost:6969/user-profiles?id=${id}&email=${email}&owner_id=${userEmail}&name=${name}`;
+        const url = `${base_url}/user-profiles?id=${id}&email=${email}&owner_id=${userEmail}&name=${name}`;
         xhr.open("PUT", url, true);
         xhr.send();
     };
 
     const handleDelete = (id: number) => {
-    //   console.log(id);
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          // Successfully deleted
-          // Update the state to remove the deleted schedule
-        //   console.log("DELETED!");
           setProfiles((prevProfiles) => prevProfiles.filter(profile => profile.id !== id));
         } 
       };
   
-      const url = `http://localhost:6969/user-profiles?owner_id=${userEmail}&id=${id}`;
+      const url = `${base_url}/user-profiles?owner_id=${userEmail}&id=${id}`;
       xhr.open("DELETE", url, true);
       xhr.send();
     };
@@ -117,7 +110,6 @@ const ExistingProfiles = () => {
     ]
 
     const getProfiles = () => {
-        // console.log(userEmail);
         const xhr = new XMLHttpRequest();
         setProfiles([]);
         xhr.onreadystatechange = function () {
@@ -125,10 +117,9 @@ const ExistingProfiles = () => {
                 const userData = JSON.parse(xhr.responseText);
                 setProfiles(userData.data);
             }
-            // console.log(xhr.response);
         };
 
-        const url = `http://localhost:6969/user-profiles?owner_id=${userEmail}&is_owner=true`;
+        const url = `${base_url}/user-profiles?owner_id=${userEmail}&is_owner=true`;
         xhr.open("GET", url, true);
         xhr.send();
     }

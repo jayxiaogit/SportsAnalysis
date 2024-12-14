@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 
 const Dashboard = () => {
 
+    const base_url = process.env.REACT_APP_BASE_URL;
+
     const userInfo = useUser();
     const [userOwner, setUserOwner] = useState<boolean>(false);
     const isSignedIn = userInfo.isSignedIn;
@@ -19,7 +21,7 @@ const Dashboard = () => {
           } 
         };
     
-        const url = `http://localhost:6969/user?user_name=${id}&name=${name}&email=${email}`;
+        const url = `${base_url}/user?user_name=${id}&name=${name}&email=${email}`;
         xhr.open("GET", url, true);
         xhr.send();
       };

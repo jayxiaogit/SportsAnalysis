@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-// import { Link } from 'react-router-dom';
 import { Slider } from "../components/ui/slider";
 import Navbar from "../components/ui/navbar";
 import { Link } from 'react-router-dom';
@@ -9,8 +8,6 @@ import { Link } from 'react-router-dom';
 import * as React from "react"
 import {
   ChevronDownIcon,
-  // ExclamationTriangleIcon,
-//   DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
   ColumnDef,
@@ -54,7 +51,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogTrigger } from '@radix-ui/react-dialog';
-// import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -80,6 +76,8 @@ type Profile = {
  };
 
 const GenerateSchedule = () => {
+  const base_url = process.env.REACT_APP_BASE_URL;
+
 
     const [ranking, setRanking] = useState('');
     const [rest, setRest] = useState('');
@@ -106,9 +104,6 @@ const GenerateSchedule = () => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [profiles, setProfiles] = useState<Profile[]>([]);
     const [profile, setProfile] = React.useState("");
-    // const [error, setError] = React.useState('');
-    // const [success, setSuccess] = React.useState('');
-
     const { user } = useUser();
 
     const thisUser = user?.primaryEmailAddress?.emailAddress ?  user?.primaryEmailAddress?.emailAddress : 'Myself';
@@ -135,7 +130,6 @@ const GenerateSchedule = () => {
                         if (value) {
                             handleInclude(row.original.name);
                         } else {
-                            // If already included, remove from included array
                             if (included.includes(row.original.name)) {
                                 setIncluded((prevIncluded) => prevIncluded.filter(name => name !== row.original.name));
                             }
@@ -155,7 +149,6 @@ const GenerateSchedule = () => {
                         if (value) {
                             handleExclude(row.original.name);
                         } else {
-                            // If already included, remove from included array
                             if (excluded.includes(row.original.name)) {
                                 setExcluded((prevExcluded) => prevExcluded.filter(name => name !== row.original.name));
                             }
@@ -208,15 +201,13 @@ const GenerateSchedule = () => {
 
     const handleGenerateClick = () => {
         if (isNaN(parseInt(ranking)) || isNaN(parseInt(zipcode)) || isNaN(parseInt(rest))) {
-            // Show alert dialog
             alert("Please enter valid numbers for ranking, zipcode, or rest.");
-            return; // Exit function
+            return;
         }
         if (profile === "") {
           alert("Please pick a profile to generate the schedule for.");
           return;
         }
-        // Make the API call
         setIsGenerating(true);
         localStorage.setItem('ranking', ranking);
         localStorage.setItem('zipcode', zipcode);
@@ -226,11 +217,9 @@ const GenerateSchedule = () => {
         localStorage.setItem('earnings', earnings.toString());
         localStorage.setItem('points', points.toString());
 
-        // Collect selected tournament names
         const includedTournaments = included;
         const excludedTournaments = excluded;
 
-        // Convert the array of selected tournament names into a comma-separated string
         excludedTournaments.join(',');
         includedTournaments.join(',');
 
@@ -246,10 +235,8 @@ const GenerateSchedule = () => {
             }
               
         };
-        // setIsGenerating(false);
-        // setSchedule([]);
 
-        const url = `http://localhost:6969/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
+        const url = `${base_url}/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
         xhr.open("GET", url, true);
         xhr.send();
     };
@@ -264,7 +251,7 @@ const GenerateSchedule = () => {
           }
       };
 
-      const url = `http://localhost:6969/save_schedule?email=${user}&schedule=${sendScheduleString}&name=${name}`;
+      const url = `${base_url}/save_schedule?email=${user}&schedule=${sendScheduleString}&name=${name}`;
       xhr.open("POST", url, true);
       xhr.send();
   };
@@ -304,7 +291,7 @@ const GenerateSchedule = () => {
           }
       };
 
-      const url = `http://localhost:6969/user-profiles?owner_id=${userEmail}&is_owner=true`;
+      const url = `${base_url}/user-profiles?owner_id=${userEmail}&is_owner=true`;
       xhr.open("GET", url, true);
       xhr.send();
   }

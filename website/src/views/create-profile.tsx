@@ -1,31 +1,14 @@
 import { useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
-// import { DataTable } from '@/components/ui/data-table';
-
-// import {
-//     ColumnDef,
-//   } from "@tanstack/react-table";
 import Navbar from '@/components/ui/navbar';
 import { Button } from '@/components/ui/button';
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-// } from "@/components/ui/dialog";
 import { Label } from '@radix-ui/react-label';
-// import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-// import {
-//   Accordion,
-//   AccordionContent,
-//   AccordionItem,
-//   AccordionTrigger,
-// } from "@/components/ui/accordion"
 
 
 const CreateProfile = () => {
+
+    const base_url = process.env.REACT_APP_BASE_URL;
 
     const { user } = useUser();
 
@@ -41,9 +24,6 @@ const CreateProfile = () => {
           const xhr = new XMLHttpRequest();
           xhr.onreadystatechange = function () {
               if (xhr.readyState === 4 && xhr.status === 200) {
-                  // Successfully deleted
-                  // Update the state to remove the deleted schedule
-                  console.log("SUCCESS");
                   alert("Successfuly added profile!");
                   setName("");
                   setEmail("");
@@ -51,7 +31,7 @@ const CreateProfile = () => {
               } 
           };
       
-          const url = `http://localhost:6969/user-profiles?name=${name}&email=${email}&is_owner=false&owner_id=${userEmail}`;
+          const url = `${base_url}/user-profiles?name=${name}&email=${email}&is_owner=false&owner_id=${userEmail}`;
           xhr.open("POST", url, true);
           xhr.send();
         }

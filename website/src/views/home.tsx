@@ -3,9 +3,8 @@ import { useUser, RedirectToSignIn } from '@clerk/clerk-react';
 
 const Home = () => {
 
-  const { isSignedIn } = useUser(); // Using Clerk's hook to get the user's sign-in status
+  const { isSignedIn } = useUser();
 
-  // If the user is not signed in, show login
   if (!isSignedIn) {
     return <RedirectToSignIn />;
   }

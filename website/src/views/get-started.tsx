@@ -44,15 +44,13 @@ const GetStarted = () => {
         >
           If you haven’t used our model before, create a new account!
         </p>
-
-        {/* Dividing the list into 4 quadrants */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",  // Two columns
-            gridTemplateRows: "repeat(2, 1fr)",     // Two rows
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateRows: "repeat(2, 1fr)", 
             gap: "20px",
-            width: "60%", // Adjust width as needed
+            width: "60%",
             marginTop: "40px",
             padding: "20px",
             textAlign: "center",
@@ -60,7 +58,6 @@ const GetStarted = () => {
             marginRight: "auto",
           }}
         >
-          {/* Quadrant 1: Create a new schedule */}
           <div
             style={{
               background: "#ffffff",
@@ -101,8 +98,6 @@ const GetStarted = () => {
               <li>Generate again with the 'Regenerate' button</li>
             </ul>
           </div>
-
-          {/* Quadrant 2: Save Schedules */}
           <div
             style={{
               background: "#ffffff",
@@ -140,8 +135,6 @@ const GetStarted = () => {
               <li>Give it a name!</li>
             </ul>
           </div>
-
-          {/* Quadrant 3: View Previous Schedules */}
           <div
             style={{
               background: "#ffffff",
@@ -182,8 +175,6 @@ const GetStarted = () => {
               <li>If you are a group owner, you can also see your player's schedules attached to their account</li>
             </ul>
           </div>
-
-          {/* Quadrant 4: Print Schedules */}
           <div
             style={{
               background: "#ffffff",
