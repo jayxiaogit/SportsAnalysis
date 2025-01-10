@@ -236,7 +236,7 @@ def clean_word(word):
     return re.sub(r'[\d_]', '', word)
 
 # TAYLOR I ADDED A BUSYINPUT IN LINE 452, IT JUST ASKS "HOW BUSY DO YOU WANT YOUR SCHEDULE TO BE"
-def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded, included):
+def print_results(zipcode, countrycode, rank, rest, busyInput, travel, earnings, points, excluded, included):
     result = ""
     # construct the API request URL
     endpoint = f'http://api.openweathermap.org/geo/1.0/zip?zip={zipcode},{countrycode}&appid={API_KEY}'
@@ -263,6 +263,7 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     # print("Ranking: ", playerRanking)
     restInput = int(rest)
     # print("Rest: ", restInput)
+    busyInput = int(busyInput)
 
     #opportunity to add more dials later
     #add dials!! then adjustment formula

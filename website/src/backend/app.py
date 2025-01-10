@@ -71,6 +71,7 @@ def results():
     countrycode = request.args.get('countrycode')
     rank = request.args.get('rank')
     rest = request.args.get('rest')
+    busyInput = request.args.get('busyInput')
     travel = request.args.get('travel')
     earnings = request.args.get('earnings')
     points = request.args.get('points')
@@ -78,7 +79,7 @@ def results():
     included = request.args.get('included')
 
     try:
-        result = print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded, included)
+        result = print_results(zipcode, countrycode, rank, rest, busyInput, travel, earnings, points, excluded, included)
         return jsonify(result)
     except Exception as e:
         print(f"Error: {e}")

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const Dashboard = () => {
 
-    const base_url = process.env.REACT_APP_BASE_URL;
+  const base_url = import.meta.env.VITE_BASE_URL;
 
     const userInfo = useUser();
     const [userOwner, setUserOwner] = useState<boolean>(false);

@@ -25,7 +25,7 @@ type Profile = {
 
 const ExistingProfiles = () => {
 
-  const base_url = process.env.REACT_APP_BASE_URL;
+  const base_url = import.meta.env.VITE_BASE_URL;
 
     const { user } = useUser();
     const userEmail = user?.primaryEmailAddress?.emailAddress;

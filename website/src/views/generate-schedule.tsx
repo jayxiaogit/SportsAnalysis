@@ -76,7 +76,7 @@ type Profile = {
  };
 
 const GenerateSchedule = () => {
-  const base_url = process.env.REACT_APP_BASE_URL;
+  const base_url = import.meta.env.VITE_BASE_URL;
 
 
     const [ranking, setRanking] = useState('');
@@ -84,7 +84,7 @@ const GenerateSchedule = () => {
     const [travel, setTravel] = useState([5]);
     const [earnings, setEarnings] = useState([5]);
     const [points, setPoints] = useState([5]);
-    // const [jay, setJay] = useState([5]);
+    const [busyInput, setBusyInput] = useState([5]);
     const [zipcode, setZipcode] = useState('');
     const [countrycode, setCountry] = useState(''); 
     const [schedule, setSchedule] = useState<string[]>([]); 
@@ -116,6 +116,7 @@ const GenerateSchedule = () => {
       setTravel([parseFloat(localStorage.getItem('travel') ?? '5.0')]);
       setEarnings([parseFloat(localStorage.getItem('earnings') ?? '5.0')]);
       setPoints([parseFloat(localStorage.getItem('points') ?? '5.0')]);
+      setBusyInput([parseFloat(localStorage.getItem('busyInput') ?? '5.0')]);
     }, []);
     
 
@@ -213,6 +214,7 @@ const GenerateSchedule = () => {
         localStorage.setItem('zipcode', zipcode);
         localStorage.setItem('countrycode', countrycode);
         localStorage.setItem('rest', rest);
+        localStorage.setItem('busyInput', busyInput.toString());
         localStorage.setItem('travel', travel.toString());
         localStorage.setItem('earnings', earnings.toString());
         localStorage.setItem('points', points.toString());
@@ -236,7 +238,7 @@ const GenerateSchedule = () => {
               
         };
 
-        const url = `${base_url}/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
+        const url = `${base_url}/schedule?zipcode=${zipcode}&countrycode=${countrycode}&rank=${ranking}&rest=${rest}&busyInput=${busyInput}&travel=${travel[0]}&earnings=${earnings[0]}&points=${points[0]}&excluded=${excludedTournaments}&included=${includedTournaments}`;
         xhr.open("GET", url, true);
         xhr.send();
     };
@@ -271,7 +273,7 @@ const GenerateSchedule = () => {
       const data = lines.map(line => {
         return line.split(':')[1];
       });
-      const expectedP = data[data.length - 3];
+      const expectedP = data[data.length - 2];
       const expectedE = data[data.length - 1];
 
       setExpectedPoints(expectedP);
@@ -360,14 +362,14 @@ const GenerateSchedule = () => {
                     <Slider value={points} max={10} step={.1} style={{ flex: 1, marginLeft: '10px', marginRight: '10px' }} onValueChange={(value) => setPoints([Math.round(value[0])])}/>
                     <div>Very important</div>
                   </div>
-                  {/* <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
+                  <div style={{ fontFamily: 'Faustina-Bold, Helvetica', fontWeight: '400', color: '#002d72', fontSize: '13px', letterSpacing: '0', lineHeight: 'normal', marginBottom:'10px' }}>
                     How busy do you want your schedule to be?
-                  </div> */}
-                  {/* <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'20px' }}>
                     <div>Not at all</div>
-                    <Slider value={travel} max={10} step={.1} style={{ flex: 1, marginLeft: '20px', marginRight: '20px', width: '500px'}} onValueChange={(value) => setJay([Math.round(value[0])])}/>
-                    <div>Very important</div>
-                  </div> */}
+                    <Slider value={busyInput} max={10} step={.1} style={{ flex: 1, marginLeft: '20px', marginRight: '20px', width: '500px'}} onValueChange={(value) => setBusyInput([Math.round(value[0])])}/>
+                    <div>Very busy</div>
+                  </div>
                 </div>
                 <div className="w-full">
                   <div className="flex items-center py-4">

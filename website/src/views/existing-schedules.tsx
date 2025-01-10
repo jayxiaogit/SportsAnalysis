@@ -34,7 +34,7 @@ type Profile = {
 };
 
 const ExistingSchedules = () => {
-  const base_url = process.env.REACT_APP_BASE_URL;
+  const base_url = import.meta.env.VITE_BASE_URL;
 
 
   const { user } = useUser();
@@ -244,7 +244,7 @@ const ExistingSchedules = () => {
               allNames.push(...scheduleData.data);
             }
           } else {
-            alert(`Couldn't find schedules for user: ${profile.email}`);
+            // alert(`Couldn't find schedules for user: ${profile.email}`);
           }
 
           if (requestsCompleted === 1 + profiles.length) {

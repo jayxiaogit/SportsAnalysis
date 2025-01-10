@@ -9,7 +9,10 @@ import { useEffect, useState } from "react";
 
 const Navbar = () => {
 
-    const base_url = process.env.REACT_APP_BASE_URL;
+    const base_url = import.meta.env.VITE_BASE_URL;
+
+
+    // const base_url = process.env.REACT_APP_BASE_URL;
     const userInfo = useUser();
     const user = userInfo?.user;
     const isSignedIn = userInfo.isSignedIn;
@@ -22,8 +25,11 @@ const Navbar = () => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
+            // console.log(JSON.parse(xhr.responseText));
             const gotUserData = JSON.parse(xhr.responseText);
+            // console.log(gotUserData);
             setUserOwner(gotUserData.data.owner);
+            // console.log(gotUserData.data.owner);
           } 
         };
     
