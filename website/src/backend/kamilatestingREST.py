@@ -297,8 +297,7 @@ for i in range(len(weeks) - restInput + 1):
     model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
     model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
 
-#TODO DEBUG HERE
-# Added code to control busyness of the schedule based on rest
+# control busyness of the schedule based on rest
 print("# weeks", len(weeks))
 total_tournaments = int((busyInput / 11) * len(weeks))  # Scale tournaments based on restInput (1-10)
 model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for week in weeks for i in range(len(data_by_week[week]['points']))) <= total_tournaments

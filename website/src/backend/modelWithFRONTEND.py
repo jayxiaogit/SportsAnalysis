@@ -235,6 +235,7 @@ def distanceCalculator(lat1, lon1, lat2, lon2):
 def clean_word(word):
     return re.sub(r'[\d_]', '', word)
 
+# TAYLOR I ADDED A BUSYINPUT IN LINE 452, IT JUST ASKS "HOW BUSY DO YOU WANT YOUR SCHEDULE TO BE"
 def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, excluded, included):
     result = ""
     # construct the API request URL
@@ -391,6 +392,7 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     #update j here if we expand our database!!!!
     tournaments = [f"{data_by_week[week]['tournament'][i]}_{week}_{j}" for week in weeks for i in range(len(data_by_week[week]['points'])) for j in range(20)]
 
+
     print("TOURNAMENTS\n")
     print(tournaments)
     print("\n\n")
@@ -426,15 +428,18 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
     x = LpVariable.dicts("Tournament", filtered_tournaments, cat="Binary")
     y = LpVariable.dicts("RestWeek", weeks, cat="Binary")
     tournament_selected = LpVariable.dicts("TournamentSelected", filtered_tournaments, cat="Binary")
-    # New variable to represent the end of a two-week tournament
     two_week_tournament_end = LpVariable.dicts("TwoWeekTournamentEnd", weeks, cat="Binary")
 
-
+# TESTING NEW REST
     # Constraints
     weeks = list(weeks)
     for week_index, week in enumerate(weeks):
-        #model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
-        model += lpSum(tournament_selected[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
+        for i in range(len(data_by_week[week]['points'])):
+            key = f"{data_by_week[week]['tournament'][i]}_{week}_{i}"
+            if key not in tournament_selected:
+                print("key not found", key)
+            else:
+                model += tournament_selected[key] <= 1
 
     # Ensure the player doesn't play for restInput consecutive weeks
     for i in range(len(weeks) - restInput + 1):
@@ -442,6 +447,10 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
         model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
         model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
 
+    # control busyness of the schedule based on rest
+    print("# weeks", len(weeks))
+    total_tournaments = int((busyInput / 11) * len(weeks))  # Scale tournaments based on restInput (1-10)
+    model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for week in weeks for i in range(len(data_by_week[week]['points']))) <= total_tournaments
 
     # Create a dictionary to store the selected tournaments by name
     selected_tournaments_by_name = {}
@@ -458,6 +467,35 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
             # Update the dictionary with the current week's tournament
             selected_tournaments_by_name[week] = tournament_name
 
+# PREVIOUS MODEL CONSTRAINTS AND REST
+    # # Constraints
+    # weeks = list(weeks)
+    # for week_index, week in enumerate(weeks):
+    #     #model += lpSum(x[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
+    #     model += lpSum(tournament_selected[f"{data_by_week[week]['tournament'][i]}_{week}_{i}"] for i in range(len(data_by_week[week]['points']))) <= 1
+
+    # # Ensure the player doesn't play for restInput consecutive weeks
+    # for i in range(len(weeks) - restInput + 1):
+    #     consecutive_weeks = weeks[i:i + restInput]
+    #     model += lpSum(x[f"{data_by_week[wk]['tournament'][j]}_{wk}_{j}"] for wk in consecutive_weeks for j in range(len(data_by_week[wk]['points']))) <= restInput - 1
+    #     model += lpSum(y[wk] for wk in consecutive_weeks) >= 1  # Ensure at least one "Rest" week in consecutive weeks
+
+
+    # # Create a dictionary to store the selected tournaments by name
+    # selected_tournaments_by_name = {}
+
+    # # Add constraints to link tournaments with the same name
+    # for week_index, week in enumerate(weeks):
+    #     for i in range(len(data_by_week[week]['tournament'])):
+    #         tournament_name = f"{data_by_week[week]['tournament'][i]}_{i}"
+
+    #         # If the tournament name is already in the dictionary, link it with the previous week
+    #         if tournament_name in selected_tournaments_by_name:
+    #             model += lpSum(tournament_selected[tournament_name] >= selected_tournaments_by_name[tournament_name])
+            
+    #         # Update the dictionary with the current week's tournament
+    #         selected_tournaments_by_name[week] = tournament_name
+
 
     # Update the objective function to use the new binary variables
     model += lpSum(
@@ -469,7 +507,7 @@ def print_results(zipcode, countrycode, rank, rest, travel, earnings, points, ex
         #dialdistance * data_by_week[wk]['distance'][i] * tournament_selected[f"{data_by_week[wk]['tournament'][i]}_{wk}_{i}"]
         for wk in weeks for i in range(len(data_by_week[wk]['points'])))
     
-    """Here is where the include code goes"""
+    #include functionality
     for week, data in data_by_week.items():
         tournaments = data['tournament']
         for i in included_array:
