@@ -218,8 +218,6 @@ const ExistingSchedules = () => {
           if (!myScheduleData.error) {
             allNames.push(...myScheduleData.data);
           }
-        } else {
-          alert("Couldn't find schedules for your account.");
         }
 
         if (requestsCompleted === 1 + profiles.length) {
@@ -243,8 +241,6 @@ const ExistingSchedules = () => {
             if (!scheduleData.error) {
               allNames.push(...scheduleData.data);
             }
-          } else {
-            // alert(`Couldn't find schedules for user: ${profile.email}`);
           }
 
           if (requestsCompleted === 1 + profiles.length) {
